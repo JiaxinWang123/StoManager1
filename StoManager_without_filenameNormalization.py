@@ -20,7 +20,7 @@ from pandas import Series
 
 root = Tk()  ## Create a windows app using TK Moduel
 root.resizable(width=False, height=False)
-root.title('StoManager_V.12.04.22_for_Different_Trees')  # Title of the app
+root.title('StoManager_V.02.04.23_for_Different_Trees')  # Title of the app
 root.iconbitmap('StoManager.ico')  # the icon that will be showing on the topleft of the app
 root.geometry("1024x760")  # the size of our windows app displayed on our screen
 bg = ImageTk.PhotoImage(file="T35 40x #7.jpg")  # to set the background of our app
@@ -396,7 +396,7 @@ def Stomata():
         # Extract the parameters from each single csv files
 
         Orientation = single_csv_file["Orientation"]  # Extract the Orientation
-        Whole_stomata_number = single_csv_file["Num_of_whole_stomatas"]  # Extract the number of whole stomata
+        Whole_stomata_number = single_csv_file["Num_of_whole_stomata"]  # Extract the number of whole stomata
         Whole_stomata_areas = single_csv_file[single_csv_file['Labels'] == 'whole_stomata']["All_sotmata_area_(pixels)"]
         Whole_stomata_area_ratio = single_csv_file['Whole_stomata_area_ratio']
         Whole_stomata_density = single_csv_file["Whole_stomata_density"]
