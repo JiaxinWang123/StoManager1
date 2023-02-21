@@ -1,4 +1,4 @@
-# StoManager
+# StoManager1
 ## Ready-to-use High-throughput Counting and Measuring Stomatal Area and Orientation
 
 ![image](https://user-images.githubusercontent.com/98176596/220231291-f069eb15-a337-4a49-a6f2-26c73aa2a8a3.png)
