@@ -206,12 +206,12 @@ def run_analyze():  ## the main funtion with the yolov3 model we trained to dete
     Input_img_size = Input_img_size_entry.get()
     Input_pixels = Input_pixels_in_1_over_10_mm.get()
 
-    if Input_img_size =="Input img full size: width, height" or Input_img_size =="" or " ":
+    if Input_img_size =="Input img full size: width, height" or Input_img_size =="" or Input_img_size == " ":
         Input_img_size = "2048,1536"
     else: 
         Input_img_size = Input_img_size_entry.get()  
 
-    if Input_pixels =="Input pixels in 0.1 mm line" or Input_pixels =="" or " ":
+    if Input_pixels =="Input pixels in 0.1 mm line" or Input_pixels =="" or Input_pixels ==" ":
         Input_pixels = "476"
     else: 
         Input_pixels = Input_pixels_in_1_over_10_mm.get()   
@@ -254,7 +254,7 @@ def run_analyze():  ## the main funtion with the yolov3 model we trained to dete
         # Loading image
         confidence_set = confidence_entry.get()
     
-        if confidence_set =="The default threshold is 0.3" or confidence_set =="" or " ":
+        if confidence_set =="The default threshold is 0.3" or confidence_set =="" or confidence_set== " ":
             confidence_set = 0.3
         else: 
             confidence_set = float(confidence_entry.get())
