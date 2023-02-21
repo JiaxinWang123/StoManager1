@@ -15,12 +15,13 @@ import matplotlib.pyplot as plt
 import re
 from pandas import Series
 
+
 # The main window
 
 
 root = Tk()  ## Create a windows app using TK Moduel
 root.resizable(width=False, height=False)
-root.title('StoManager_V.02.04.23_for_Different_Trees')  # Title of the app
+root.title('StoManager_V.02.10.23_for_Different_Trees')  # Title of the app
 root.iconbitmap('StoManager.ico')  # the icon that will be showing on the topleft of the app
 root.geometry("1024x760")  # the size of our windows app displayed on our screen
 bg = ImageTk.PhotoImage(file="T35 40x #7.jpg")  # to set the background of our app
@@ -39,11 +40,25 @@ frame.pack(pady=7, padx=7)
 
 my_canvas.create_image(0, 0, image=bg, anchor="nw")
 
-Input_path_entry = Entry(root, font=("Helvetica", 24), width=28, fg="gray", bd=0)
-Output_path_entry = Entry(root, font=("Helvetica", 24), width=28, fg="gray", bd=0)
+Input_path_entry = Entry(root, font=("Helvetica", 24), width=28, fg="gray", bd=1)
+Output_path_entry = Entry(root, font=("Helvetica", 24), width=28, fg="gray", bd=1)
 
 Input_path_entry.insert(0, "Select an image input folder path")
 Output_path_entry.insert(0, "Select an output folder path")
+
+
+Input_img_size_entry = Entry(root, font=("Helvetica", 12), width=24, fg="black", bd=1)
+Input_pixels_in_1_over_10_mm = Entry(root, font=("Helvetica", 12), width=24, fg="black", bd=1)
+
+Input_img_size_entry.insert(0, "Input img full size: width, height")
+Input_pixels_in_1_over_10_mm.insert(0, "Input pixels in 0.1 mm line")
+
+Input_img_size_window = my_canvas.create_window(30, 30, anchor="nw",
+                                            window=Input_img_size_entry)  # create the entry box in our canvas
+Input_pixel_window = my_canvas.create_window(30, 55, anchor="nw", window=Input_pixels_in_1_over_10_mm)
+
+
+
 #### Create a label and then put it into windows of canvas
 Label1 = Label(root, text="Copyright © Jiaxin Wang, email: coolwjx@foxmail.com", font=("Helvetica", 12), width=42,
                fg="gray", bd=0)
@@ -52,7 +67,7 @@ font = ("poppins", 15, "bold")
 Label_info = Label(root, font=font)
 
 Label_info.pack()
-Label_window1 = my_canvas.create_window(330, 700, anchor="nw", window=Label1)
+Label_window1 = my_canvas.create_window(330, 710, anchor="nw", window=Label1)
 Label_show_info = my_canvas.create_window(375, 600, anchor="nw", window=Label_info)
 
 Label_print = Label(root, font=font, fg="green")
@@ -77,6 +92,7 @@ def NormalizeFileNames():
     Month = str()
     Tail = str()
     Clone = str()
+    file_names = str()
 
     # create list of Site, Block, Year, Month, Tail, and Clone here, or import those information from .txt files and read them as lists
 
@@ -102,9 +118,9 @@ def NormalizeFileNames():
 
     for file_path in glob.glob(Input_path + "/" + '*jpg'):
         file_name = file_path[len(Input_path) + 1:-4]  # Extract the file name from the file path
-        fine_name_split = file_name.split(",")
+        file_name_split = file_name.split(",")
         Split_name = []
-        for s in fine_name_split:
+        for s in file_name_split:
             s = re.sub("\s+", ",", s.strip())
             Split_name.append(s)
         Split_name = ",".join(Split_name)
@@ -131,6 +147,11 @@ def NormalizeFileNames():
 
                 elif name in clone:
                     Clone = name
+        elif len(Split_name) <=4:
+
+            file_names =",".join([str(item) for item in Split_name])
+
+
         else:
             for name in Split_name:
                 if name in site:
@@ -145,20 +166,44 @@ def NormalizeFileNames():
                     Clone = name
                 
 
-        Site = Site.upper()
-        Block= Block.upper()
-        Clone = Clone.upper()
-        Month = Month.upper()
-        Tail = Tail.upper()
+        # Site = Site.upper()
+        # Block= Block.upper()
+        # Clone = Clone.upper()
+        # Month = Month.upper()
+        # Tail = Tail.upper()
+        # file_names = file_names.upper()
 
-        New_file_name = Site + "," + Block + "," + Clone + "," + Month + "," + Year + "," + Tail + ".jpg"
-        if not os.path.exists(Input_path + "/" + New_file_name):
-            os.rename(file_path, Input_path + "/" + New_file_name)
+        if len(Split_name) > 4:
+            New_file_name = Site + "," + Block + "," + Clone + "," + Month + "," + Year + "," + Tail + ".jpg"
+            if not os.path.exists(Input_path + "/" + New_file_name):
+                os.rename(file_path, Input_path + "/" + New_file_name)
+        else:
+            New_file_name = file_names + ".jpg"
+            if not os.path.exists(Input_path + "/" + New_file_name):
+                os.rename(file_path, Input_path + "/" + New_file_name)
+
+
+        
+       
+            
 
 
 def run_analyze():  ## the main funtion with the yolov3 model we trained to detect our stomata
+    
+    
     Input_path = Input_path_entry.get()
     Output_path = Output_path_entry.get()
+
+    Input_img_size = Input_img_size_entry.get()
+    Input_pixels = Input_pixels_in_1_over_10_mm.get()
+
+    split_img_size = Input_img_size.split(",")
+
+    pixle = float(Input_pixels)
+
+    Img_area = float(split_img_size[0])*float(split_img_size[1])
+    
+    whole_img_area = Img_area/((pixle)*10.0)**2
 
     # Load Yolo
     net = cv2.dnn.readNet("yolov3_training_last.weights", "yolov3_testing.cfg")
@@ -222,7 +267,7 @@ def run_analyze():  ## the main funtion with the yolov3 model we trained to dete
                 scores = detection[5:]
                 class_id = np.argmax(scores)
                 confidence = scores[class_id]
-                if confidence > 0.8:
+                if confidence > 0.4:
                     # Object detected
 
                     center_x = (detection[0] * width)
@@ -308,7 +353,7 @@ def run_analyze():  ## the main funtion with the yolov3 model we trained to dete
         print("There are :", len(number_of_stomata), "stomatas,", " and", len(number_of_whole_stomata),
               "whole_stomatas.", "in", img_path)
         # print("Currently detecting image is :",img_path)
-        print("The measured size of this image is :", width, "×", height, ".")
+        print("The measured size of this image is :", width, "x", height, ".")
         if len(images_path) > 1:
             final_info = "There are " + str(
                 len(images_path)) + " images detected!" + "\n" + "It's time to check your results!"
@@ -325,15 +370,15 @@ def run_analyze():  ## the main funtion with the yolov3 model we trained to dete
         image_name = img_path
         image_width = list_of_image_width
         image_height = list_of_image_height
-        all_stomata_areas = list_of_all_stomata_areas
+        all_stomata_areas = [(float(k)/Img_area*1000000) for k in list_of_all_stomata_areas]
         Whole_stomata_density=number_of_whole_stomata
         image_name = {"Labels": labels, "Width_(pixels)": widths, "Height_(pixels)": heights,
                       "Orientation": orientations,
                       "Num_of_Stomata": len(number_of_stomata), "Num_of_whole_stomata": len(number_of_whole_stomata),
                       "Width_of_image_(pixels)": image_width, "Height_of_image_(pixels)": image_height,
-                      "All_sotmata_area_(pixels)": all_stomata_areas,
+                      "All_sotmata_area_(mum2)": all_stomata_areas,
                       "Whole_stomata_area_ratio": list_of_whole_stomatal_area_ratio,
-                      "Whole_stomata_density": len(Whole_stomata_density)/0.140837}
+                      "Whole_stomata_density": len(Whole_stomata_density)/whole_img_area}
 
         df = pd.DataFrame(image_name)
 
@@ -357,6 +402,8 @@ def run_analyze():  ## the main funtion with the yolov3 model we trained to dete
         # key = cv2.waitKey(0)
 
     # cv2.destroyAllWindows()
+
+
 
 # Define a function to analyze the  stomatal data
 
@@ -382,11 +429,12 @@ def Stomata():
     Year = []
 
     # Using for loop to go through all csv files
-
+    
     for file_path in glob.glob(folder_path + '/' + '*.csv'):
         single_csv_file = pd.read_csv(file_path, low_memory=False)  # Read the csv and assign it to a variable
         file_name = file_path[len(folder_path) + 1:-4]  # Extract the file name from the file path
         Split_name = file_name.split(",")  # Split the site, block, and clone info from the file name
+        
         Site.append(Split_name[0])  # Add the site to the Site list
         Block.append(Split_name[1])
         Clone.append(Split_name[2])
@@ -397,7 +445,7 @@ def Stomata():
 
         Orientation = single_csv_file["Orientation"]  # Extract the Orientation
         Whole_stomata_number = single_csv_file["Num_of_whole_stomata"]  # Extract the number of whole stomata
-        Whole_stomata_areas = single_csv_file[single_csv_file['Labels'] == 'whole_stomata']["All_sotmata_area_(pixels)"]
+        Whole_stomata_areas = single_csv_file[single_csv_file['Labels'] == 'whole_stomata']["All_sotmata_area_(mum2)"]
         Whole_stomata_area_ratio = single_csv_file['Whole_stomata_area_ratio']
         Whole_stomata_density = single_csv_file["Whole_stomata_density"]
 
@@ -486,6 +534,124 @@ def Stomata():
     Label_print.config(text=print_text)
 
 
+def Stomata_with_no_groups():
+    # Create empty lists to hold the values that we are going to extract
+    folder_path = Output_path_entry.get()
+    WST_Area_median = []
+    WST_Area_max = []
+    WST_Area_min = []
+    WST_Area_mean = []
+    WST_Area_var = []
+    WST_Area_std = []
+    WST_Number = []
+    WST_Area_Ratio = []
+    WST_Orientation = []
+    WST_Orientation_var = []
+    WST_Density = []
+    WST_Area = []
+    Filename = []
+
+
+    # Using for loop to go through all csv files
+    
+    for file_path in glob.glob(folder_path + '/' + '*.csv'):
+        single_csv_file = pd.read_csv(file_path, low_memory=False)  # Read the csv and assign it to a variable
+        file_name = file_path[len(folder_path) + 1:-4]  # Extract the file name from the file path
+        Split_name = file_name.split(",")  # Split the site, block, and clone info from the file name
+        
+        Filename.append(",".join([str(item) for item in Split_name]))
+
+        # Extract the parameters from each single csv files
+
+        Orientation = single_csv_file["Orientation"]  # Extract the Orientation
+        Whole_stomata_number = single_csv_file["Num_of_whole_stomata"]  # Extract the number of whole stomata
+        Whole_stomata_areas = single_csv_file[single_csv_file['Labels'] == 'whole_stomata']["All_sotmata_area_(mum2)"]
+        Whole_stomata_area_ratio = single_csv_file['Whole_stomata_area_ratio']
+        Whole_stomata_density = single_csv_file["Whole_stomata_density"]
+
+        # Remove the outliers before calculating orientation variance
+        Q1 = np.percentile(Orientation, 25, method = 'midpoint')
+        Q3 = np.percentile(Orientation, 75,method = 'midpoint')
+
+        IQR = Q3 - Q1
+
+        upper = np.where(Orientation >= (Q3+1.5*IQR))
+        lower = np.where(Orientation <= (Q1-1.5*IQR))
+
+        Orientation.drop(upper[0], inplace = True)
+        Orientation.drop(lower[0], inplace = True)
+
+        # print(upper)
+        # print(lower)
+
+        # Remove the outliers before calculating Whole_stomata_areas variance
+        # Q1 = np.percentile(Whole_stomata_areas, 25, method = 'midpoint')
+        # Q3 = np.percentile(Whole_stomata_areas, 75,method = 'midpoint')
+
+        # IQR = Q3 - Q1
+
+        # upper = np.where(Whole_stomata_areas >= (Q3+1.5*IQR))
+        # lower = np.where(Whole_stomata_areas <= (Q1-1.5*IQR))
+
+        # Whole_stomata_areas.drop(upper[0], inplace = True)
+        # Whole_stomata_areas.drop(lower[0], inplace = True)
+
+        # print(Orientation)
+        # print(Whole_stomata_areas)
+
+
+        # calculate the median, mean, variance of each leaf stomata number, stomata area
+
+        Whole_stomata_areas_median = np.median(Whole_stomata_areas)
+        Whole_stomata_areas_max = np.max(Whole_stomata_areas)
+        Whole_stomata_areas_min = np.min(Whole_stomata_areas)
+        Whole_stomata_areas_mean = np.mean(Whole_stomata_areas)
+        Whole_stomata_areas_var = np.var(Whole_stomata_areas)
+        Whole_stomata_areas_std = np.std(Whole_stomata_areas)
+
+        WST_Area_median.append(Whole_stomata_areas_median)
+        WST_Area_max.append(Whole_stomata_areas_max)
+        WST_Area_min.append(Whole_stomata_areas_min)
+        WST_Area_mean.append(Whole_stomata_areas_mean)
+        WST_Area_var.append(Whole_stomata_areas_var)
+        WST_Area_std.append(Whole_stomata_areas_std)
+        WST_Orientation.append(np.median(Orientation))
+        WST_Orientation_var.append(np.var(Orientation))
+
+        # Extract the number of stomata
+        WST_Density.append(np.mean(Whole_stomata_density))
+        WST_Number.append(np.mean(Whole_stomata_number))
+        WST_Area.append(np.mean(Whole_stomata_areas))
+        WST_Area_Ratio.append(np.mean(Whole_stomata_area_ratio))
+
+    # Convert all lists into pd.series
+
+
+    Filename = pd.Series(Filename, dtype=pd.StringDtype(), name="Filename")
+    WST_Number = pd.Series(WST_Number, dtype=pd.Float64Dtype(), name="WST_Number")
+    WST_Area_Ratio = pd.Series(WST_Area_Ratio, dtype=pd.Float64Dtype(), name="WST_Area_Ratio")
+    WST_Area_median = pd.Series(WST_Area_median, dtype=pd.Float64Dtype(), name="WST_Area_median")
+    WST_Area_max = pd.Series(WST_Area_max, dtype=pd.Float64Dtype(), name="WST_Area_max")
+    WST_Area_min = pd.Series(WST_Area_min, dtype=pd.Float64Dtype(), name="WST_Area_min")
+    WST_Area_mean = pd.Series(WST_Area_mean, dtype=pd.Float64Dtype(), name="WST_Area_mean")
+    WST_Area_var = pd.Series(WST_Area_var, dtype=pd.Float64Dtype(), name="WST_Area_var")
+    WST_Area_std = pd.Series(WST_Area_std, dtype=pd.Float64Dtype(), name="WST_Area_std")
+    WST_Density = pd.Series(WST_Density, dtype=pd.Float64Dtype(), name ="WST_Density")
+    WST_Orientation = pd.Series(WST_Orientation, dtype=pd.Float64Dtype(), name ="WST_Orientation")
+    WST_Orientation_var = pd.Series(WST_Orientation_var, dtype=pd.Float64Dtype(), name ="WST_Orientation_var")
+
+    # Put all extracted parameters into a data frame
+    Output_data = pd.concat(
+        [Filename, WST_Number, WST_Area_Ratio,WST_Density, WST_Area_median, WST_Area_max, WST_Area_min,
+         WST_Area_mean, WST_Area_var, WST_Area_std, WST_Orientation, WST_Orientation_var], axis=1)
+    Output_data = pd.DataFrame(data=Output_data)
+    random_str = ''.join(random.choices(string.ascii_uppercase, k=4))
+    Output_data.to_excel(folder_path + "/" + "Stomata_output"+ "_" + random_str +".xlsx")
+    print_text = "Done!"
+    Label_print.config(text=print_text)
+
+
+
 #### Put a button to aqure the filedialog
 
 def loadInputFolder():
@@ -517,9 +683,13 @@ button2 = Button(root, text="Select folder", image=photo, command=loadOutputFold
                  font=("Helvetica", 18), fg="#06443B", bd=0)
 button1_window = my_canvas.create_window(770, 370, anchor="nw", window=button2)
 
-Button_3 = Button(root, text="Start Stomatal Analysis", font=("Helvetica", 20), width=18,
-                  fg="green", bd=0, command=Stomata)
-Button_3_window = my_canvas.create_window(375, 650, anchor="nw", window=Button_3)
+Button_3 = Button(root, text="Start Stomatal Analysis with groups", font=("Helvetica", 12), width=30, height=1,
+                  fg="green", command=Stomata)
+Button_3_window = my_canvas.create_window(530, 655, anchor="nw", window=Button_3)
+
+Button_4 = Button(root, text="Start Stomatal Analysis without groups", font=("Helvetica", 12), width=32,height= 1,
+                  fg="green", command=Stomata_with_no_groups)
+Button_4_window = my_canvas.create_window(220, 655, anchor="nw", window=Button_4)
 
 LOGO = PhotoImage(file=r"StoManager_8080.png", )
 img = LOGO.subsample(12)
@@ -571,21 +741,31 @@ def openNewWindow():
     newWindow.geometry("1024x760")
 
 
-button3 = Button(root, text="Check the output", command=openNewWindow, font=("Helvetica", 18), fg="green", bd=0)
-button3_window = my_canvas.create_window(520, 530, window=button3)
+button3 = Button(root, text="Check the output", command=openNewWindow, font=("Helvetica", 12), fg="green", bd=1)
+button3_window = my_canvas.create_window(515, 530, window=button3)
 
 
 # a button widget which will open a
 
 
 def Input_entry_clear(e):  # the function that will get the text from the entry box
-    if Input_path_entry.get() == "Type your image input folder path":
+    if Input_path_entry.get() != "Type your image input folder path":
         Input_path_entry.delete(0, END)
 
 
 def Output_entry_clear(e):
-    if Input_path_entry.get() != "Type your image input folder path":
+    if Output_path_entry.get() != "Type your image input folder path":
         Output_path_entry.delete(0, END)
+
+def Img_size_entry_clear(e):
+    if Input_img_size_entry.get() != "Type your image input folder path":
+        Input_img_size_entry.delete(0, END)
+
+def Pixel_entry_clear(e):
+    if Input_pixels_in_1_over_10_mm.get() != "Type your image input folder path":
+        Input_pixels_in_1_over_10_mm.delete(0, END)
+
+
 
 
 Input_button = Button(root, text="Input Image Folder", font=("Helvetica", 20), width=15, fg="#06443B")
@@ -608,5 +788,10 @@ Run_window = my_canvas.create_window(260, 450, anchor="nw", window=Run_button, w
 
 Input_path_entry.bind("<Button-1>", Input_entry_clear)
 Output_path_entry.bind("<Button-1>", Output_entry_clear)
+
+
+Input_img_size_entry.bind("<Button-1>", Img_size_entry_clear)
+Input_pixels_in_1_over_10_mm.bind("<Button-1>", Pixel_entry_clear)
+
 
 root.mainloop()
