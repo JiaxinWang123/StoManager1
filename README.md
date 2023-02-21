@@ -1,5 +1,5 @@
 # StoManager1
-## Ready-to-use High-throughput Counting and Measuring Stomatal Area and Orientation
+## Automated, High-throughput Tool to Measure Leaf Stomata Using Convolutional Neural Networks
 
 ![image](https://user-images.githubusercontent.com/98176596/220233518-d2acb553-6b3b-48e0-94da-caca8d866ad0.png)
 
