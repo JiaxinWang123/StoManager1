@@ -58,6 +58,15 @@ Input_img_size_window = my_canvas.create_window(30, 30, anchor="nw",
 Input_pixel_window = my_canvas.create_window(30, 55, anchor="nw", window=Input_pixels_in_1_over_10_mm)
 
 
+confidence_entry = Entry(root, font=("Helvetica", 12), width=24, fg="black", bd=1)
+
+confidence_entry.insert(0, "The default threshold is 0.3")
+
+confidence_window = my_canvas.create_window(770, 30, anchor="nw",
+                                            window=confidence_entry)  # create the entry box in our canvas
+
+
+
 
 #### Create a label and then put it into windows of canvas
 Label1 = Label(root, text="Copyright © Jiaxin Wang, email: coolwjx@foxmail.com", font=("Helvetica", 12), width=42,
@@ -233,6 +242,14 @@ def run_analyze():  ## the main funtion with the yolov3 model we trained to dete
 
     for img_path in images_path:
         # Loading image
+        confidence_set = confidence_entry.get()
+    
+        if confidence_set =="The default threshold is 0.3" or confidence_set =="" or " ":
+            confidence_set = 0.3
+        else: 
+            confidence_set = float(confidence_entry.get())
+        
+
         img = cv2.imread(img_path)
         # img = cv2.resize(img, None, fx=0.5, fy=0.5)
         height, width, channels = img.shape
@@ -267,7 +284,7 @@ def run_analyze():  ## the main funtion with the yolov3 model we trained to dete
                 scores = detection[5:]
                 class_id = np.argmax(scores)
                 confidence = scores[class_id]
-                if confidence > 0.4:
+                if confidence > confidence_set:
                     # Object detected
 
                     center_x = (detection[0] * width)
@@ -749,23 +766,25 @@ button3_window = my_canvas.create_window(515, 530, window=button3)
 
 
 def Input_entry_clear(e):  # the function that will get the text from the entry box
-    if Input_path_entry.get() != "Type your image input folder path":
+    if Input_path_entry.get() != " ":
         Input_path_entry.delete(0, END)
 
 
 def Output_entry_clear(e):
-    if Output_path_entry.get() != "Type your image input folder path":
+    if Output_path_entry.get() != " ":
         Output_path_entry.delete(0, END)
 
 def Img_size_entry_clear(e):
-    if Input_img_size_entry.get() != "Type your image input folder path":
+    if Input_img_size_entry.get() != " ":
         Input_img_size_entry.delete(0, END)
 
 def Pixel_entry_clear(e):
-    if Input_pixels_in_1_over_10_mm.get() != "Type your image input folder path":
+    if Input_pixels_in_1_over_10_mm.get() != " ":
         Input_pixels_in_1_over_10_mm.delete(0, END)
 
-
+def confidence_entry_clear(e):
+    if confidence_entry.get() != " ":
+        confidence_entry.delete(0, END)
 
 
 Input_button = Button(root, text="Input Image Folder", font=("Helvetica", 20), width=15, fg="#06443B")
@@ -793,5 +812,6 @@ Output_path_entry.bind("<Button-1>", Output_entry_clear)
 Input_img_size_entry.bind("<Button-1>", Img_size_entry_clear)
 Input_pixels_in_1_over_10_mm.bind("<Button-1>", Pixel_entry_clear)
 
+confidence_entry.bind("<Button-1>", confidence_entry_clear)
 
 root.mainloop()
