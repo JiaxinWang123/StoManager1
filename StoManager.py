@@ -206,6 +206,16 @@ def run_analyze():  ## the main funtion with the yolov3 model we trained to dete
     Input_img_size = Input_img_size_entry.get()
     Input_pixels = Input_pixels_in_1_over_10_mm.get()
 
+    if Input_img_size =="Input img full size: width, height" or Input_img_size =="" or " ":
+        Input_img_size = "2048,1536"
+    else: 
+        Input_img_size = Input_img_size_entry.get()  
+
+    if Input_pixels =="Input pixels in 0.1 mm line" or Input_pixels =="" or " ":
+        Input_pixels = "476"
+    else: 
+        Input_pixels = Input_pixels_in_1_over_10_mm.get()   
+
     split_img_size = Input_img_size.split(",")
 
     pixle = float(Input_pixels)
