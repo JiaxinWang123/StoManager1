@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="image">
+    <file>American,elm,08.jpg</file>
+    <file>stomata_larger.png</file>
+    <file>stomata.png</file>
+    <file>StoManager_8080.png</file>
+  </qresource>
+</RCC>
