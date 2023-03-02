@@ -6,7 +6,7 @@
 
 The weights can be downloaded through the link: https://drive.google.com/file/d/1-6XFtIso7OH5RHLqWlOpKoq-IhdYKWqx/view?usp=share_link
 
-A stand-alone Windows based executable application can be downloaded through from zenodo: https://doi.org/10.5281/zenodo.7686297; https://doi.org/10.6084/m9.figshare.22191331.v1
+A stand-alone Windows based executable application can be downloaded through from Zenodo: https://doi.org/10.5281/zenodo.7686297;  and Figureshare at https://doi.org/10.6084/m9.figshare.22191331.v1
 
 The Toy dataset can be found folowing the link: https://drive.google.com/drive/folders/1kSicatjBYj1BYc0TWhrRvXRALocct6sI?usp=share_link
 
