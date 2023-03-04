@@ -12,3 +12,5 @@ The Toy dataset can be found folowing the link: https://drive.google.com/drive/f
 
 The simplified manual is available here  [Manual_StoManager1.pdf](https://github.com/JiaxinWang123/StoManager1/files/10886078/Manual_StoManager1.pdf)
 
+Please Cite as
+Wang, Jiaxin, Renninger, Heidi, & Ma, Qin. (2023). StoManager1: Automated, High-throughput Tool to Measure Leaf Stomata Using Convolutional Neural Networks (v.0226.23). Zenodo. https://doi.org/10.5281/zenodo.7693681
