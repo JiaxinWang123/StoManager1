@@ -538,15 +538,15 @@ class Ui_StoManager1(object):
 
     def retranslateUi(self, StoManager1):
         _translate = QtCore.QCoreApplication.translate
-        StoManager1.setWindowTitle(_translate("StoManager1", "StoManager1.v.0226.23_Not_only_for_Populus"))
+        StoManager1.setWindowTitle(_translate("StoManager1", "StoManager1.v.0305.23_For_Hardwoods"))
         self.label_3.setText(_translate("StoManager1", "© Jiaxin Wang,  For questions or requests @ coolwjx@foxmail.com; jw3994@msstate.edu"))
         self.lineEdit.setText(_translate("StoManager1", "Input path"))
         self.pushButton_8.setText(_translate("StoManager1", "Input"))
         self.lineEdit_2.setText(_translate("StoManager1", "Output path"))
         self.pushButton_9.setText(_translate("StoManager1", "Output"))
-        self.lineEdit_3.setText(_translate("StoManager1", "Input image size"))
-        self.lineEdit_4.setText(_translate("StoManager1", "Input pixels in 0.1 mm"))
-        self.lineEdit_5.setText(_translate("StoManager1", "Confidence threshold for detection"))
+        self.lineEdit_3.setText(_translate("StoManager1", "Input image size, the default is: 2048,1536"))
+        self.lineEdit_4.setText(_translate("StoManager1", "Input pixels in 0.1 mm, the default is: 476"))
+        self.lineEdit_5.setText(_translate("StoManager1", "Confidence threshold for detection the default is 0.3"))
         self.pushButton_3.setText(_translate("StoManager1", "Start Process"))
         self.pushButton_6.setText(_translate("StoManager1", "Normalize File"))
         self.pushButton_7.setText(_translate("StoManager1", "Statistical Analysis"))
@@ -844,12 +844,12 @@ class Ui_StoManager1(object):
 
             self.img_num = 1
 
-            if Input_img_size =="Input image size" or Input_img_size =="" or Input_img_size == " ":
+            if Input_img_size =="Input image size, the default is: 2048,1536" or Input_img_size =="" or Input_img_size == " ":
                 Input_img_size = "2048,1536"
             else: 
                 Input_img_size = self.lineEdit_3.text()
 
-            if Input_pixels =="Input pixels in 0.1 mm" or Input_pixels =="" or Input_pixels ==" ":
+            if Input_pixels =="Input pixels in 0.1 mm, the default is: 476" or Input_pixels =="" or Input_pixels ==" ":
                 Input_pixels = "476"
             else: 
                 Input_pixels = self.lineEdit_4.text()
@@ -894,7 +894,7 @@ class Ui_StoManager1(object):
                 # Loading image
                 confidence_set = self.lineEdit_5.text()
             
-                if confidence_set =="Confidence threshold for detection" or confidence_set =="" or confidence_set ==" ":
+                if confidence_set =="Confidence threshold for detection the default is 0.3" or confidence_set =="" or confidence_set ==" ":
                     confidence_set = 0.3
                 else: 
                     confidence_set = float(self.lineEdit_5.text())
