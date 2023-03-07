@@ -1,7 +1,8 @@
 # StoManager1
 ## Automated, High-throughput Tool to Measure Leaf Stomata Using Convolutional Neural Networks
 
-![Figure1](https://user-images.githubusercontent.com/98176596/221718649-15d1d731-b5e6-4ec0-ae9e-b1a20cce479d.png)
+![image](https://user-images.githubusercontent.com/98176596/223315416-adf921a4-4e3c-4382-9a60-701b44f37461.png)
+
 
 
 The weights can be downloaded through the link: https://drive.google.com/file/d/1-6XFtIso7OH5RHLqWlOpKoq-IhdYKWqx/view?usp=share_link
