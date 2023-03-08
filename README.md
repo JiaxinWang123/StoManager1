@@ -19,4 +19,4 @@ The simplified manual is available here  [Manual_StoManager1.pdf](https://github
 
 Please Cite as:
 
-Wang, Jiaxin, Renninger, Heidi, & Ma, Qin. (2023). StoManager1: Automated, High-throughput Tool to Measure Leaf Stomata Using Convolutional Neural Networks (v.0226.23). Zenodo. https://doi.org/10.5281/zenodo.7686022.
+Wang, Jiaxin, Renninger, Heidi, & Ma, Qin. (2023). StoManager1: Automated, High-throughput Tool to Measure Leaf Stomata Using Convolutional Neural Networks (v.0308.23). Zenodo. https://doi.org/10.5281/zenodo.7686022.
