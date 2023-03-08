@@ -538,7 +538,7 @@ class Ui_StoManager1(object):
 
     def retranslateUi(self, StoManager1):
         _translate = QtCore.QCoreApplication.translate
-        StoManager1.setWindowTitle(_translate("StoManager1", "StoManager1.v.0305.23_For_Hardwoods"))
+        StoManager1.setWindowTitle(_translate("StoManager1", "StoManager1.v.0308.23_For_Hardwoods"))
         self.label_3.setText(_translate("StoManager1", "© Jiaxin Wang,  For questions or requests @ coolwjx@foxmail.com; jw3994@msstate.edu"))
         self.lineEdit.setText(_translate("StoManager1", "Input path"))
         self.pushButton_8.setText(_translate("StoManager1", "Input"))
