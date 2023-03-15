@@ -955,7 +955,7 @@ class Ui_StoManager1(object):
                             class_ids.append(class_id)
                 # put class id, confidence, x, y, width, height to a txt file
                 
-                indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.5, 0.4)  
+                indexes = cv2.dnn.NMSBoxes(boxes, confidences, 0.1, 0.4)  
 
                 # print(len(indexes[class_id]))
                 font = cv2.FONT_HERSHEY_PLAIN
