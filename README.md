@@ -17,9 +17,11 @@ The simplified manual is available here  [Manual_StoManager1.pdf](https://github
 
 
 
+Prepreint manuscript is available: 
+
+https://doi.org/10.48550/arXiv.2304.10450
 
 Please Cite as:
-
 
 @misc{wang2023stomanager1,
       title={StoManager1: Automated, High-throughput Tool to Measure Leaf Stomata Using Convolutional Neural Networks}, 
