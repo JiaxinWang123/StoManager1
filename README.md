@@ -23,7 +23,7 @@ https://doi.org/10.48550/arXiv.2304.10450
 
 Please Cite as:
 
-"""
+```
 @misc{wang2023stomanager1,
       title={StoManager1: Automated, High-throughput Tool to Measure Leaf Stomata Using Convolutional Neural Networks}, 
       author={Jiaxin Wang and Heidi J. Renninger and Qin Ma},
@@ -32,7 +32,10 @@ Please Cite as:
       archivePrefix={arXiv},
       primaryClass={q-bio.TO}
 }
-"""
+```
+
+
+
 
 ## We have also made our Labeled Hardwood and Populus datasets (over 1,1000 images and corresponding labels) available on figshare:
 
