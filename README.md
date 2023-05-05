@@ -51,4 +51,4 @@ Wang, Jiaxin; Renninger, Heidi J. (2023): Labeled 17 Hardwood Species and 55 Gen
 
 ![image](https://user-images.githubusercontent.com/98176596/236367191-ccbfbcaa-bbeb-421a-96e3-ebd461b3bda1.png)
 
-Find the latest standalone windows version apps here: https://doi.org/10.5281/zenodo.7897973 ; and here: https://doi.org/10.6084/m9.figshare.22205020
+Find the latest standalone windows version apps here: https://doi.org/10.5281/zenodo.7897993 ; and here: https://doi.org/10.6084/m9.figshare.22205020
