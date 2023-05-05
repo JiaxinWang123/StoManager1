@@ -7,6 +7,8 @@
 
 The weights can be downloaded through the link: https://drive.google.com/file/d/1-6XFtIso7OH5RHLqWlOpKoq-IhdYKWqx/view?usp=share_link
 
+The weights for YOLOv8 can be downloaded through the link: https://drive.google.com/file/d/1zKTrbJmZuXKjVr64LX5P_vdNL3AqhX5i/view?usp=share_link
+
 A stand-alone Windows based executable application can be downloaded through from Zenodo: https://doi.org/10.5281/zenodo.7686022;  and Figshare at https://doi.org/10.6084/m9.figshare.22205020
 
 The Toy dataset can be found folowing the link: https://drive.google.com/drive/folders/1kSicatjBYj1BYc0TWhrRvXRALocct6sI?usp=share_link
