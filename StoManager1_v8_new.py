@@ -570,7 +570,7 @@ class Ui_StoManager1(object):
         if it is not checked, run `run_analyze()` function, which uses YOLOv3 bounding box-based model
         """
         if self.YOLOv8_seg_x.isChecked():
-            self.GuardCell()
+            self.Check_input_path_folder()
         else:
             self.Box_model()
 
@@ -846,7 +846,7 @@ class Ui_StoManager1(object):
         if bool(output_image_path_) is True:
 
             if self.selected_image_index == 0:
-                self.selected_image_index = 0
+                self.selected_image_index = len(image_files_2)-1
             else:
                 self.selected_image_index -= 1
             scene = QtWidgets.QGraphicsScene(StoManager1)
@@ -1095,14 +1095,18 @@ class Ui_StoManager1(object):
                             number_of_whole_stomata.append(class_ids[i])
                             list_of_all_stomata_areas.append(
                                 (w * h) * 0.6878 + 806)  ## Build linear regression model for adjusted area of whole_stomata
-                            list_of_whole_stomatal_area.append((w * h) * 0.6878 + 806)
+                            list_of_whole_stomatal_area.append(((w * h) * 0.6878 + 806)*(10000/(pixle*pixle)))
                         elif label == "stomata":  ## Build linear regression model for adjusted area of stomata
                             number_of_stomata.append(class_ids[i])
                             list_of_all_stomata_areas.append(
-                                (w * h + 116.08) / 1.7684)
+                                ((w * h + 116.08) / 1.7684)*(10000/(pixle*pixle)))
                             
                         orientation = math.log(w/h)*(-92.2325)+44.5222
-                        orientations.append(orientation)
+                        
+                        if orientation>=0:
+                            orientations.append(orientation)
+                        else:
+                            orientations.append(orientation+180)
 
                         list_of_width.append(w)
                         list_of_height.append(h)
@@ -1125,14 +1129,14 @@ class Ui_StoManager1(object):
                         f.write(str((str(class_ids_2[m]) + " " + str(confidences[m])+ " "+ str(x_center) + " " + str(y_center) + " " + str(w_2) + " " + str(h_2))))
                         f.write('\n')  
 
-                list_of_whole_stomatal_area_ratio = sum(list_of_whole_stomatal_area) / (
+                list_of_whole_stomatal_area_ratio = sum((area/(10000/(pixle*pixle))) for area in list_of_whole_stomatal_area) / (
                         statistics.mean(list_of_image_width) * statistics.mean(list_of_image_height))
                 heights = list_of_height
                 widths = list_of_width
                 image_name = img_path
                 image_width = list_of_image_width
                 image_height = list_of_image_height
-                all_stomata_areas = [(float(k)/(height*width*1000000)) for k in list_of_all_stomata_areas]
+                all_stomata_areas = [(float(k)) for k in list_of_all_stomata_areas]
                 Whole_stomata_density=number_of_whole_stomata
                 image_name = {"Labels": labels, "Width_(pixels)": widths, "Height_(pixels)": heights,
                             "Orientation": orientations,
@@ -1248,7 +1252,7 @@ class Ui_StoManager1(object):
                         WST_Orientation_var.append(np.var(Orientation))
 
                         # Extract the number of stomata
-                        WST_Density.append(np.mean(Whole_stomata_density))
+                        WST_Density.append(int(np.mean(Whole_stomata_density)))
                         WST_Number.append(np.mean(Whole_stomata_number))
                         WST_Area.append(np.mean(Whole_stomata_areas))
                         WST_Area_Ratio.append(np.mean(Whole_stomata_area_ratio))
@@ -1361,7 +1365,7 @@ class Ui_StoManager1(object):
                     WST_Orientation_var.append(np.var(Orientation))
 
                     # Extract the number of stomata
-                    WST_Density.append(np.mean(Whole_stomata_density))
+                    WST_Density.append(int(np.mean(Whole_stomata_density)))
                     WST_Number.append(np.mean(Whole_stomata_number))
                     WST_Area.append(np.mean(Whole_stomata_areas))
                     WST_Area_Ratio.append(np.mean(Whole_stomata_area_ratio))
@@ -1400,6 +1404,24 @@ class Ui_StoManager1(object):
             pass          
 
     #### define a function use YOLOv8-seg-x model 
+
+    def Check_input_path_folder(self):
+        self.folder = self.lineEdit.text()
+        list_dir = os.listdir(self.folder)
+        list_folder = bool()
+        for f in list_dir:
+            if not os.path.isfile(os.path.join(self.folder, f)):
+                list_folder=True
+                break
+            else:
+                list_folder = False
+        if list_folder is True:
+            self.messagebox_if_input_path_contains_folder()
+        else: 
+            self.GuardCell()
+
+
+
     def GuardCell(self):
         """ """
         """ loop thorough all images and extract features for stomatal and whole_stomata """
@@ -1651,14 +1673,15 @@ class Ui_StoManager1(object):
                                 if area_0 == 0 or guard_cell_area_ ==0:
                                     ratio_area_st_gc = 0
                                 else:
-                                    ratio_area_st_gc = float("{:.3f}".format(area_0/guard_cell_area_))
+                                    ratio_area_st_gc = float("{:.3f}".format(area_0/guard_cell_area_))   
 
+                                ratio_area_to_img = float("{:.3f}".format(sum((area/(10000/(self.p*self.p))) for area in area_wst) / img_area)) 
 
                                 link_st_wst.append([ori_img_shape, class_1, number_wst, j, box_w_1, box_h_1, 
                                                     area_1, width_1, length_1 ,var_area_wst,var_width_wst,var_length_wst, whole_stomata_centroid, class_0, number_st, 
                                                     k, box_w_0, box_h_0, area_0, width_0, 
                                                     length_0, var_area_st,var_width_st,var_length_st,stomata_centroid, guard_cell_length_,
-                                                    guard_cell_width_, guard_cell_area_, angle_0, var_angle,var_width_guardCell, var_length_guardCell, wst_density,ratio_area_st_gc])
+                                                    guard_cell_width_, guard_cell_area_, angle_0, var_angle,var_width_guardCell, var_length_guardCell, wst_density,ratio_area_st_gc, ratio_area_to_img])
                                 k+=1
                             else:
                                 pass
@@ -1671,7 +1694,7 @@ class Ui_StoManager1(object):
                                                     'index_st', 'box_w_st', 'box_h_st', 'area_st', 'width_st', 
                                                     'length_st', 'var_area_st','var_width_st','var_length_st','centroid_st','guardCell_length',
                                                     'guardCell_width', 'guardCell_area', 'guardCell_angle', 'var_angle','var_width_guardCell', 
-                                                    'var_length_guardCell', 'wst_density','ratio_area_st_gc'])
+                                                    'var_length_guardCell', 'wst_density','ratio_area_st_gc','ratio_area_to_img'])
 
                     df.to_csv(os.path.join(str(new_path), f""+ filename_without_ext +".csv"),index=False)
 
@@ -1826,6 +1849,11 @@ class Ui_StoManager1(object):
             ratio_area_st_gc_min = []
             ratio_area_st_gc_max = []
 
+            ratio_area_to_img_mean = []
+            ratio_area_to_img_median = []
+            ratio_area_to_img_min = []
+            ratio_area_to_img_max = []
+
             var_angle_mean = []
             var_angle_median = []
             var_angle_min = []
@@ -1875,6 +1903,7 @@ class Ui_StoManager1(object):
                     var_length_guardCell = single_csv_file["var_length_guardCell"]
                     wst_density = single_csv_file["wst_density"]
                     ratio_area_st_gc = single_csv_file["ratio_area_st_gc"]
+                    ratio_area_to_img = single_csv_file["ratio_area_to_img"]
 
                     # print(type(box_w_wst))
 
@@ -2094,6 +2123,11 @@ class Ui_StoManager1(object):
                     ratio_area_st_gc.drop(upper[0], inplace = True)
                     ratio_area_st_gc.drop(lower[0], inplace = True) 
 
+                    # Remove the outliers before calculating ratio_area_to_img variance
+                    ratio_area_to_img = ratio_area_to_img[-1:] 
+
+
+
                     # calculate the median, mean, variance of each leaf stomata number, stomata area
 
                     No_wst_mean_ = np.mean(number_wst)
@@ -2227,6 +2261,11 @@ class Ui_StoManager1(object):
                     ratio_area_st_gc_median_ = np.median(ratio_area_st_gc)
                     ratio_area_st_gc_min_ = min(ratio_area_st_gc)
                     ratio_area_st_gc_max_ = max(ratio_area_st_gc)
+
+                    ratio_area_to_img_mean_ = np.mean(ratio_area_to_img)
+                    ratio_area_to_img_median_ = np.median(ratio_area_to_img)
+                    ratio_area_to_img_min_ = min(ratio_area_to_img)
+                    ratio_area_to_img_max_ = max(ratio_area_to_img)
 
                     var_angle_mean_ = np.mean(var_angle)
                     var_angle_median_ = np.median(var_angle)
@@ -2371,6 +2410,11 @@ class Ui_StoManager1(object):
                     var_angle_median.append(var_angle_median_)
                     var_angle_min.append(var_angle_min_)
                     var_angle_max.append(var_angle_max_)
+
+                    ratio_area_to_img_mean.append(ratio_area_to_img_mean_)
+                    ratio_area_to_img_median.append(ratio_area_to_img_median_)
+                    ratio_area_to_img_min.append(ratio_area_to_img_min_)
+                    ratio_area_to_img_max.append(ratio_area_to_img_max_)
                     
                     self.progressBar.setValue(int((self.img_num / len(glob.glob(output_image_path_ + '/' + '*.csv'))*100)))
                     QtWidgets.QApplication.processEvents()
@@ -2510,6 +2554,11 @@ class Ui_StoManager1(object):
             ratio_area_st_gc_min = pd.Series(ratio_area_st_gc_min, dtype=pd.Float64Dtype(), name="ratio_area_st_gc_min").map('{:,.3f}'.format)
             ratio_area_st_gc_max = pd.Series(ratio_area_st_gc_max, dtype=pd.Float64Dtype(), name="ratio_area_st_gc_max").map('{:,.3f}'.format) 
 
+            ratio_area_to_img_mean = pd.Series(ratio_area_to_img_mean, dtype=pd.Float64Dtype(), name="ratio_area_to_img_mean").map('{:,.3f}'.format)
+            ratio_area_to_img_median = pd.Series(ratio_area_to_img_median, dtype=pd.Float64Dtype(), name="ratio_area_to_img_median").map('{:,.3f}'.format)
+            ratio_area_to_img_min = pd.Series(ratio_area_to_img_min, dtype=pd.Float64Dtype(), name="ratio_area_to_img_min").map('{:,.3f}'.format)
+            ratio_area_to_img_max = pd.Series(ratio_area_to_img_max, dtype=pd.Float64Dtype(), name="ratio_area_to_img_max").map('{:,.3f}'.format) 
+
             var_angle_mean = pd.Series(var_angle_mean, dtype=pd.Float64Dtype(), name="var_angle_mean").map('{:,.0f}'.format)
             var_angle_median = pd.Series(var_angle_median, dtype=pd.Float64Dtype(), name="var_angle_median").map('{:,.0f}'.format)
             var_angle_min = pd.Series(var_angle_min, dtype=pd.Float64Dtype(), name="var_angle_min").map('{:,.0f}'.format)
@@ -2622,6 +2671,10 @@ class Ui_StoManager1(object):
                 ratio_area_st_gc_median,
                 ratio_area_st_gc_min,
                 ratio_area_st_gc_max,
+                ratio_area_to_img_mean,
+                ratio_area_to_img_median,
+                ratio_area_to_img_min,
+                ratio_area_to_img_max,
                 var_angle_mean,
                 var_angle_median,
                 var_angle_min,
@@ -2978,6 +3031,22 @@ class Ui_StoManager1(object):
         msg.setInformativeText("Please define output image path, and try one more time. 🐻")       
         # start the app
         x = msg.exec_()
+
+
+    def messagebox_if_input_path_contains_folder(self):
+        """ """
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Information)
+        msg.setWindowIcon(QtGui.QIcon('StoManager.ico'))
+        # setting message for Message Box
+        msg.setText("The input path cannot contain subfolders")        
+        # setting Message box window title
+        msg.setWindowTitle("Check if input path contains subfolders 🐸")        
+        # declaring buttons on Message Box
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.setInformativeText("Please remove the subfolders, and try one more time. 🐻")       
+        # start the app
+        x = msg.exec_()        
 
 # webbrowser
 
