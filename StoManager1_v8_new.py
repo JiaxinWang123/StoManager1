@@ -1198,20 +1198,141 @@ class Ui_StoManager1(object):
                 # for file_path in glob.glob(self.output_image_path_ + '/' + '*.csv'):
                 self.file_path = glob.glob(self.output_image_path_ + '/' + '*.csv')[1]
                 single_csv_file = pd.read_csv(self.file_path, low_memory=False)  # Read the csv and assign it to a variable
-                file_name = self.file_path[len(self.output_image_path_) + 1:-4]  # Extract the file name from the file path
-                Split_name = file_name.split(",")                 
-                if len(Split_name)>=5:
-                                    
-                    for self.file_path in glob.glob(self.output_image_path_ + '/' + '*.csv'):
-                        single_csv_file = pd.read_csv(self.file_path, low_memory=False)  # Read the csv and assign it to a variable
-                        file_name = self.file_path[len(self.output_image_path_) + 1:-4]  # Extract the file name from the file path
-                        Split_name = file_name.split(",")  # Split the site, block, and clone info from the file name
-                        
-                        Site.append(Split_name[0])  # Add the site to the Site list
-                        Block.append(Split_name[1])
-                        Clone.append(Split_name[2])
-                        Month.append(Split_name[3])
-                        Year.append(Split_name[4])
+                if single_csv_file.shape[0]>=4:                
+                    file_name = self.file_path[len(self.output_image_path_) + 1:-4]  # Extract the file name from the file path
+                    Split_name = file_name.split(",")                 
+                    if len(Split_name)>=5:
+                                        
+                        for self.file_path in glob.glob(self.output_image_path_ + '/' + '*.csv'):
+                            single_csv_file = pd.read_csv(self.file_path, low_memory=False)  # Read the csv and assign it to a variable
+                            file_name = self.file_path[len(self.output_image_path_) + 1:-4]  # Extract the file name from the file path
+                            Split_name = file_name.split(",")  # Split the site, block, and clone info from the file name
+                            
+                            Site.append(Split_name[0])  # Add the site to the Site list
+                            Block.append(Split_name[1])
+                            Clone.append(Split_name[2])
+                            Month.append(Split_name[3])
+                            Year.append(Split_name[4])
+
+                            # Extract the parameters from each single csv files
+
+                            Orientation = single_csv_file["Orientation"]  # Extract the Orientation
+                            Whole_stomata_number = single_csv_file["Num_of_whole_stomata"]  # Extract the number of whole stomata
+                            Whole_stomata_areas = single_csv_file[single_csv_file['Labels'] == 'whole_stomata']["All_sotmata_area_(mum2)"]
+                            Whole_stomata_area_ratio = single_csv_file['Whole_stomata_area_ratio']
+                            Whole_stomata_density = single_csv_file["Whole_stomata_density"]
+
+                            # Remove the outliers before calculating orientation variance
+                            Q1 = np.percentile(Orientation, 25, method = 'midpoint')
+                            Q3 = np.percentile(Orientation, 75,method = 'midpoint')
+
+                            IQR = Q3 - Q1
+
+                            upper = np.where(Orientation >= (Q3+1.5*IQR))
+                            lower = np.where(Orientation <= (Q1-1.5*IQR))
+
+                            Orientation.drop(upper[0], inplace = True)
+                            Orientation.drop(lower[0], inplace = True)
+
+                            # calculate the median, mean, variance of each leaf stomata number, stomata area
+
+                            Whole_stomata_areas_median = np.median(Whole_stomata_areas)
+                            Whole_stomata_areas_max = np.max(Whole_stomata_areas)
+                            Whole_stomata_areas_min = np.min(Whole_stomata_areas)
+                            Whole_stomata_areas_mean = np.mean(Whole_stomata_areas)
+                            Whole_stomata_areas_var = np.var(Whole_stomata_areas)
+                            Whole_stomata_areas_std = np.std(Whole_stomata_areas)
+
+                            WST_Area_median.append(Whole_stomata_areas_median)
+                            WST_Area_max.append(Whole_stomata_areas_max)
+                            WST_Area_min.append(Whole_stomata_areas_min)
+                            WST_Area_mean.append(Whole_stomata_areas_mean)
+                            WST_Area_var.append(Whole_stomata_areas_var)
+                            WST_Area_std.append(Whole_stomata_areas_std)
+                            WST_Orientation.append(np.median(Orientation))
+                            WST_Orientation_var.append(np.var(Orientation))
+
+                            # Extract the number of stomata
+                            WST_Density.append(int(np.mean(Whole_stomata_density)))
+                            WST_Number.append(np.mean(Whole_stomata_number))
+                            WST_Area.append(np.mean(Whole_stomata_areas))
+                            WST_Area_Ratio.append(np.mean(Whole_stomata_area_ratio))
+                            self.progressBar.setValue(int((self.img_num / len(glob.glob(self.output_image_path_ + '/' + '*.csv'))*100)))
+                            QtWidgets.QApplication.processEvents()
+
+                            self.img_num +=1
+                            
+                        else:
+                            self.img_num +=1
+                            pass                        
+                            
+
+                    # Convert all lists into pd.series
+
+                    Site = pd.Series(Site, dtype=pd.StringDtype(), name="Site")
+                    Block = pd.Series(Block, dtype=pd.StringDtype(), name="Block")
+                    Clone = pd.Series(Clone, dtype=pd.StringDtype(), name="Clone")
+                    Month = pd.Series(Month, dtype=pd.StringDtype(), name="Month")
+                    Year = pd.Series(Year, dtype=pd.StringDtype(), name="Year")
+                    WST_Number = pd.Series(WST_Number, dtype=pd.Float64Dtype(), name="WST_Number")
+                    WST_Area_Ratio = pd.Series(WST_Area_Ratio, dtype=pd.Float64Dtype(), name="WST_Area_Ratio")
+                    WST_Area_median = pd.Series(WST_Area_median, dtype=pd.Float64Dtype(), name="WST_Area_median")
+                    WST_Area_max = pd.Series(WST_Area_max, dtype=pd.Float64Dtype(), name="WST_Area_max")
+                    WST_Area_min = pd.Series(WST_Area_min, dtype=pd.Float64Dtype(), name="WST_Area_min")
+                    WST_Area_mean = pd.Series(WST_Area_mean, dtype=pd.Float64Dtype(), name="WST_Area_mean")
+                    WST_Area_var = pd.Series(WST_Area_var, dtype=pd.Float64Dtype(), name="WST_Area_var")
+                    WST_Area_std = pd.Series(WST_Area_std, dtype=pd.Float64Dtype(), name="WST_Area_std")
+                    WST_Density = pd.Series(WST_Density, dtype=pd.Float64Dtype(), name ="WST_Density")
+                    WST_Orientation = pd.Series(WST_Orientation, dtype=pd.Float64Dtype(), name ="WST_Orientation")
+                    WST_Orientation_var = pd.Series(WST_Orientation_var, dtype=pd.Float64Dtype(), name ="WST_Orientation_var")
+
+                    # Put all extracted parameters into a data frame
+                    Output_data = pd.concat(
+                        [Site, Block, Clone, Month, Year, WST_Number, WST_Area_Ratio,WST_Density, WST_Area_median, WST_Area_max, WST_Area_min,
+                        WST_Area_mean, WST_Area_var, WST_Area_std, WST_Orientation, WST_Orientation_var], axis=1)
+                    Output_data = pd.DataFrame(data=Output_data)
+                    random_str = ''.join(random.choices(string.ascii_uppercase, k=4))
+                    Output_data.to_excel(self.output_image_path_ + "/" + "Stomata_output"+ "_" + random_str +".xlsx")
+                    self.show_info_messagebox_group_analysis1()
+
+        else:
+            self.show_info_messagebox_group_analysis_2()
+            pass    
+
+    def Stomata_no_groups_analysis(self):
+        """ """
+        # Create empty lists to hold the values that we are going to extract
+        self.output_image_path_ = self.lineEdit_2.text()
+        if bool(glob.glob(self.output_image_path_ + "/" + '*csv')) is True:
+
+            WST_Area_median = []
+            WST_Area_max = []
+            WST_Area_min = []
+            WST_Area_mean = []
+            WST_Area_var = []
+            WST_Area_std = []
+            WST_Number = []
+            WST_Area_Ratio = []
+            WST_Orientation = []
+            WST_Orientation_var = []
+            WST_Density = []
+            WST_Area = []
+            Filename = []
+
+            # Using for loop to go through all csv files
+            if bool(glob.glob(self.output_image_path_ + '/' + 'Statistics.csv')) is True:
+                os.remove(glob.glob(self.output_image_path_ + '/' + 'Statistics.csv')[0])
+            else:
+                self.img_num =1
+                for file_path in glob.glob(self.output_image_path_ + '/' + '*.csv'):
+                    
+                    single_csv_file = pd.read_csv(file_path, low_memory=False)  # Read the csv and assign it to a variable
+                    file_name = file_path[len(self.output_image_path_) + 1:-4]  # Extract the file name from the file path
+                    Split_name = file_name.split(",")  # Split the site, block, and clone info from the file name
+                    
+                    if single_csv_file.shape[0]>=4:
+
+                        Filename.append(",".join([str(item) for item in Split_name]))
 
                         # Extract the parameters from each single csv files
 
@@ -1256,18 +1377,19 @@ class Ui_StoManager1(object):
                         WST_Number.append(np.mean(Whole_stomata_number))
                         WST_Area.append(np.mean(Whole_stomata_areas))
                         WST_Area_Ratio.append(np.mean(Whole_stomata_area_ratio))
+                        
                         self.progressBar.setValue(int((self.img_num / len(glob.glob(self.output_image_path_ + '/' + '*.csv'))*100)))
                         QtWidgets.QApplication.processEvents()
 
                         self.img_num +=1
 
+                    else:
+                        self.img_num +=1
+                        pass                                        
+
                 # Convert all lists into pd.series
 
-                Site = pd.Series(Site, dtype=pd.StringDtype(), name="Site")
-                Block = pd.Series(Block, dtype=pd.StringDtype(), name="Block")
-                Clone = pd.Series(Clone, dtype=pd.StringDtype(), name="Clone")
-                Month = pd.Series(Month, dtype=pd.StringDtype(), name="Month")
-                Year = pd.Series(Year, dtype=pd.StringDtype(), name="Year")
+                Filename = pd.Series(Filename, dtype=pd.StringDtype(), name="Filename")
                 WST_Number = pd.Series(WST_Number, dtype=pd.Float64Dtype(), name="WST_Number")
                 WST_Area_Ratio = pd.Series(WST_Area_Ratio, dtype=pd.Float64Dtype(), name="WST_Area_Ratio")
                 WST_Area_median = pd.Series(WST_Area_median, dtype=pd.Float64Dtype(), name="WST_Area_median")
@@ -1282,122 +1404,12 @@ class Ui_StoManager1(object):
 
                 # Put all extracted parameters into a data frame
                 Output_data = pd.concat(
-                    [Site, Block, Clone, Month, Year, WST_Number, WST_Area_Ratio,WST_Density, WST_Area_median, WST_Area_max, WST_Area_min,
+                    [Filename, WST_Number, WST_Area_Ratio,WST_Density, WST_Area_median, WST_Area_max, WST_Area_min,
                     WST_Area_mean, WST_Area_var, WST_Area_std, WST_Orientation, WST_Orientation_var], axis=1)
                 Output_data = pd.DataFrame(data=Output_data)
                 random_str = ''.join(random.choices(string.ascii_uppercase, k=4))
                 Output_data.to_excel(self.output_image_path_ + "/" + "Stomata_output"+ "_" + random_str +".xlsx")
-                self.show_info_messagebox_group_analysis1()
-
-        else:
-            self.show_info_messagebox_group_analysis_2()
-            pass    
-
-    def Stomata_no_groups_analysis(self):
-        """ """
-        # Create empty lists to hold the values that we are going to extract
-        self.output_image_path_ = self.lineEdit_2.text()
-        if bool(glob.glob(self.output_image_path_ + "/" + '*csv')) is True:
-
-            WST_Area_median = []
-            WST_Area_max = []
-            WST_Area_min = []
-            WST_Area_mean = []
-            WST_Area_var = []
-            WST_Area_std = []
-            WST_Number = []
-            WST_Area_Ratio = []
-            WST_Orientation = []
-            WST_Orientation_var = []
-            WST_Density = []
-            WST_Area = []
-            Filename = []
-
-            # Using for loop to go through all csv files
-            if bool(glob.glob(self.output_image_path_ + '/' + 'Statistics.csv')) is True:
-                os.remove(glob.glob(self.output_image_path_ + '/' + 'Statistics.csv')[0])
-            else:
-                self.img_num =1
-                for file_path in glob.glob(self.output_image_path_ + '/' + '*.csv'):
-                    
-                    single_csv_file = pd.read_csv(file_path, low_memory=False)  # Read the csv and assign it to a variable
-                    file_name = file_path[len(self.output_image_path_) + 1:-4]  # Extract the file name from the file path
-                    Split_name = file_name.split(",")  # Split the site, block, and clone info from the file name
-                    
-                    Filename.append(",".join([str(item) for item in Split_name]))
-
-                    # Extract the parameters from each single csv files
-
-                    Orientation = single_csv_file["Orientation"]  # Extract the Orientation
-                    Whole_stomata_number = single_csv_file["Num_of_whole_stomata"]  # Extract the number of whole stomata
-                    Whole_stomata_areas = single_csv_file[single_csv_file['Labels'] == 'whole_stomata']["All_sotmata_area_(mum2)"]
-                    Whole_stomata_area_ratio = single_csv_file['Whole_stomata_area_ratio']
-                    Whole_stomata_density = single_csv_file["Whole_stomata_density"]
-
-                    # Remove the outliers before calculating orientation variance
-                    Q1 = np.percentile(Orientation, 25, method = 'midpoint')
-                    Q3 = np.percentile(Orientation, 75,method = 'midpoint')
-
-                    IQR = Q3 - Q1
-
-                    upper = np.where(Orientation >= (Q3+1.5*IQR))
-                    lower = np.where(Orientation <= (Q1-1.5*IQR))
-
-                    Orientation.drop(upper[0], inplace = True)
-                    Orientation.drop(lower[0], inplace = True)
-
-                    # calculate the median, mean, variance of each leaf stomata number, stomata area
-
-                    Whole_stomata_areas_median = np.median(Whole_stomata_areas)
-                    Whole_stomata_areas_max = np.max(Whole_stomata_areas)
-                    Whole_stomata_areas_min = np.min(Whole_stomata_areas)
-                    Whole_stomata_areas_mean = np.mean(Whole_stomata_areas)
-                    Whole_stomata_areas_var = np.var(Whole_stomata_areas)
-                    Whole_stomata_areas_std = np.std(Whole_stomata_areas)
-
-                    WST_Area_median.append(Whole_stomata_areas_median)
-                    WST_Area_max.append(Whole_stomata_areas_max)
-                    WST_Area_min.append(Whole_stomata_areas_min)
-                    WST_Area_mean.append(Whole_stomata_areas_mean)
-                    WST_Area_var.append(Whole_stomata_areas_var)
-                    WST_Area_std.append(Whole_stomata_areas_std)
-                    WST_Orientation.append(np.median(Orientation))
-                    WST_Orientation_var.append(np.var(Orientation))
-
-                    # Extract the number of stomata
-                    WST_Density.append(int(np.mean(Whole_stomata_density)))
-                    WST_Number.append(np.mean(Whole_stomata_number))
-                    WST_Area.append(np.mean(Whole_stomata_areas))
-                    WST_Area_Ratio.append(np.mean(Whole_stomata_area_ratio))
-                    
-                    self.progressBar.setValue(int((self.img_num / len(glob.glob(self.output_image_path_ + '/' + '*.csv'))*100)))
-                    QtWidgets.QApplication.processEvents()
-
-                    self.img_num +=1                    
-
-            # Convert all lists into pd.series
-
-            Filename = pd.Series(Filename, dtype=pd.StringDtype(), name="Filename")
-            WST_Number = pd.Series(WST_Number, dtype=pd.Float64Dtype(), name="WST_Number")
-            WST_Area_Ratio = pd.Series(WST_Area_Ratio, dtype=pd.Float64Dtype(), name="WST_Area_Ratio")
-            WST_Area_median = pd.Series(WST_Area_median, dtype=pd.Float64Dtype(), name="WST_Area_median")
-            WST_Area_max = pd.Series(WST_Area_max, dtype=pd.Float64Dtype(), name="WST_Area_max")
-            WST_Area_min = pd.Series(WST_Area_min, dtype=pd.Float64Dtype(), name="WST_Area_min")
-            WST_Area_mean = pd.Series(WST_Area_mean, dtype=pd.Float64Dtype(), name="WST_Area_mean")
-            WST_Area_var = pd.Series(WST_Area_var, dtype=pd.Float64Dtype(), name="WST_Area_var")
-            WST_Area_std = pd.Series(WST_Area_std, dtype=pd.Float64Dtype(), name="WST_Area_std")
-            WST_Density = pd.Series(WST_Density, dtype=pd.Float64Dtype(), name ="WST_Density")
-            WST_Orientation = pd.Series(WST_Orientation, dtype=pd.Float64Dtype(), name ="WST_Orientation")
-            WST_Orientation_var = pd.Series(WST_Orientation_var, dtype=pd.Float64Dtype(), name ="WST_Orientation_var")
-
-            # Put all extracted parameters into a data frame
-            Output_data = pd.concat(
-                [Filename, WST_Number, WST_Area_Ratio,WST_Density, WST_Area_median, WST_Area_max, WST_Area_min,
-                WST_Area_mean, WST_Area_var, WST_Area_std, WST_Orientation, WST_Orientation_var], axis=1)
-            Output_data = pd.DataFrame(data=Output_data)
-            random_str = ''.join(random.choices(string.ascii_uppercase, k=4))
-            Output_data.to_excel(self.output_image_path_ + "/" + "Stomata_output"+ "_" + random_str +".xlsx")
-            self.show_info_messagebox_group_analysis()
+                self.show_info_messagebox_group_analysis()
 
         else:
             self.show_info_messagebox_group_analysis_2()
@@ -1869,822 +1881,828 @@ class Ui_StoManager1(object):
                 for file_path in glob.glob(output_image_path_ + '/' + '*.csv'):
                     
                     single_csv_file = pd.read_csv(file_path, low_memory=False)  # Read the csv and assign it to a variable
+
                     file_name = file_path[len(output_image_path_) + 1:-4]  # Extract the file name from the file path
                     Split_name = file_name.split(",")  # Split the site, block, and clone info from the file name
-                    
-                    Filename.append(",".join([str(item) for item in Split_name]))
-                    # Extract the parameters from each single csv files
-                    number_wst = single_csv_file["number_wst"]
-                    box_w_wst = single_csv_file["box_w_wst"]
-                    box_h_wst = single_csv_file["box_h_wst"]  
-                    area_wst = single_csv_file["area_wst"]
-                    width_wst = single_csv_file["width_wst"]
-                    length_wst = single_csv_file["length_wst"]
-                    var_area_wst = single_csv_file["var_area_wst"]
-                    var_width_wst = single_csv_file["var_width_wst"]
-                    var_length_wst = single_csv_file["var_length_wst"]
-                    
-                    number_st = single_csv_file["number_st"]
-                    box_w_st = single_csv_file["box_w_st"]
-                    box_h_st = single_csv_file["box_h_st"]  
-                    area_st = single_csv_file["area_st"]
-                    width_st = single_csv_file["width_st"]
-                    length_st = single_csv_file["length_st"]
-                    var_area_st = single_csv_file["var_area_st"]
-                    var_width_st = single_csv_file["var_width_st"]
-                    var_length_st = single_csv_file["var_length_st"]
-
-                    guardCell_length = single_csv_file["guardCell_length"]
-                    guardCell_width = single_csv_file["guardCell_width"]
-                    guardCell_area = single_csv_file["guardCell_area"]
-                    guardCell_angle = single_csv_file["guardCell_angle"]
-                    var_angle = single_csv_file["var_angle"]
-                    var_width_guardCell = single_csv_file["var_width_guardCell"]
-                    var_length_guardCell = single_csv_file["var_length_guardCell"]
-                    wst_density = single_csv_file["wst_density"]
-                    ratio_area_st_gc = single_csv_file["ratio_area_st_gc"]
-                    ratio_area_to_img = single_csv_file["ratio_area_to_img"]
-
-                    # print(type(box_w_wst))
-
-                    # Remove the outliers before calculating box_w_wst variance
-                    Q1_box_w_wst = np.percentile(box_w_wst, 5, method = 'midpoint')
-                    Q3_box_w_wst = np.percentile(box_w_wst, 95, method = 'midpoint')
-                    IQR_box_w_wst = Q3_box_w_wst - Q1_box_w_wst
-                    upper = np.where(box_w_wst >= (Q3_box_w_wst+1.5*IQR_box_w_wst))
-                    lower = np.where(box_w_wst <= (Q1_box_w_wst-1.5*IQR_box_w_wst))
-                    box_w_wst.drop(upper[0], inplace = True)
-                    box_w_wst.drop(lower[0], inplace = True)
-
-                    # Remove the outliers before calculating box_h_wst variance
-                    Q1_box_h_wst = np.percentile(box_h_wst, 2.5, method = 'midpoint')
-                    Q3_box_h_wst = np.percentile(box_h_wst, 97.5,method = 'midpoint')
-                    IQR_box_h_wst = Q3_box_h_wst - Q1_box_h_wst
-                    upper = np.where(box_h_wst >= (Q3_box_h_wst+1.5*IQR_box_h_wst))
-                    lower = np.where(box_h_wst <= (Q1_box_h_wst-1.5*IQR_box_h_wst))
-                    box_h_wst.drop(upper[0], inplace = True)
-                    box_h_wst.drop(lower[0], inplace = True)
-
-                    # Remove the outliers before calculating area_wst variance
-                    Q1_area_wst = np.percentile(area_wst, 2.5, method = 'midpoint')
-                    Q3_area_wst = np.percentile(area_wst, 97.5,method = 'midpoint')
-                    IQR_area_wst = Q3_area_wst - Q1_area_wst
-                    upper = np.where(area_wst >= (Q3_area_wst+1.5*IQR_area_wst))
-                    lower = np.where(area_wst <= (Q1_area_wst-1.5*IQR_area_wst))
-                    area_wst.drop(upper[0], inplace = True)
-                    area_wst.drop(lower[0], inplace = True)
-
-                    # Remove the outliers before calculating width_wst variance
-                    Q1_width_wst = np.percentile(width_wst, 2.5, method = 'midpoint')
-                    Q3_width_wst = np.percentile(width_wst, 97.5,method = 'midpoint')
-                    IQR_width_wst = Q3_width_wst - Q1_width_wst
-                    upper = np.where(width_wst >= (Q3_width_wst+1.5*IQR_width_wst))
-                    lower = np.where(width_wst <= (Q1_width_wst-1.5*IQR_width_wst))
-                    width_wst.drop(upper[0], inplace = True)
-                    width_wst.drop(lower[0], inplace = True)
-
-                    # Remove the outliers before calculating length_wst variance
-                    Q1_length_wst = np.percentile(length_wst, 2.5, method = 'midpoint')
-                    Q3_length_wst = np.percentile(length_wst, 97.5,method = 'midpoint')
-                    IQR_length_wst = Q3_length_wst - Q1_length_wst
-                    upper = np.where(length_wst >= (Q3_length_wst+1.5*IQR_length_wst))
-                    lower = np.where(length_wst <= (Q1_length_wst-1.5*IQR_length_wst))
-                    length_wst.drop(upper[0], inplace = True)
-                    length_wst.drop(lower[0], inplace = True)
-
-                    # Remove the outliers before calculating var_area_wst variance
-                    # Q1_var_area_wst = np.percentile(var_area_wst, 5, method = 'midpoint')
-                    # Q3_var_area_wst = np.percentile(var_area_wst, 95,method = 'midpoint')
-                    # IQR_var_area_wst = Q3_var_area_wst - Q1_var_area_wst
-                    # upper = np.where(var_area_wst >= (Q3_var_area_wst+1.5*IQR_var_area_wst))
-                    # lower = np.where(var_area_wst <= (Q1_var_area_wst-1.5*IQR_var_area_wst))
-                    # var_area_wst.drop(upper[0], inplace = True)
-                    # var_area_wst.drop(lower[0], inplace = True)
-                    var_area_wst = var_area_wst[-1:]
-
-                    # Remove the outliers before calculating var_width_wst variance
-                    # Q1_var_width_wst = np.percentile(var_width_wst, 5, method = 'midpoint')
-                    # Q3_var_width_wst = np.percentile(var_width_wst, 95,method = 'midpoint')
-                    # IQR_var_width_wst = Q3_var_width_wst - Q1_var_width_wst
-                    # upper = np.where(var_width_wst >= (Q3_var_width_wst+1.5*IQR_var_width_wst))
-                    # lower = np.where(var_width_wst <= (Q1_var_width_wst-1.5*IQR_var_width_wst))
-                    # var_width_wst.drop(upper[0], inplace = True)
-                    # var_width_wst.drop(lower[0], inplace = True) 
-                    var_width_wst = var_width_wst[-1:]                
-
-                    var_angle = var_angle[-1:]   
-                    # Remove the outliers before calculating var_length_wst variance
-                    # Q1_var_length_wst = np.percentile(var_length_wst, 5, method = 'midpoint')
-                    # Q3_var_length_wst = np.percentile(var_length_wst, 95,method = 'midpoint')
-                    # IQR_var_length_wst = Q3_var_length_wst - Q1_var_length_wst
-                    # upper = np.where(var_length_wst >= (Q3_var_length_wst+1.5*IQR_var_length_wst))
-                    # lower = np.where(var_length_wst <= (Q1_var_length_wst-1.5*IQR_var_length_wst))
-                    # var_length_wst.drop(upper[0], inplace = True)
-                    # var_length_wst.drop(lower[0], inplace = True)  
-                    var_length_wst = var_length_wst[-1:] 
-
-                    # Remove the outliers before calculating box_w_st variance
-                    Q1_box_w_st = np.percentile(box_w_st, 2.5, method = 'midpoint')
-                    Q3_box_w_st = np.percentile(box_w_st, 97.5,method = 'midpoint')
-                    IQR_box_w_st = Q3_box_w_st - Q1_box_w_st
-                    upper = np.where(box_w_st >= (Q3_box_w_st+1.5*IQR_box_w_st))
-                    lower = np.where(box_w_st <= (Q1_box_w_st-1.5*IQR_box_w_st))
-                    box_w_st.drop(upper[0], inplace = True)
-                    box_w_st.drop(lower[0], inplace = True)                               
-
-                    # Remove the outliers before calculating box_h_st variance
-                    Q1_box_h_st = np.percentile(box_h_st, 2.5, method = 'midpoint')
-                    Q3_box_h_st = np.percentile(box_h_st, 97.5,method = 'midpoint')
-                    IQR_box_h_st = Q3_box_h_st - Q1_box_h_st
-                    upper = np.where(box_h_st >= (Q3_box_h_st+1.5*IQR_box_h_st))
-                    lower = np.where(box_h_st <= (Q1_box_h_st-1.5*IQR_box_h_st))
-                    box_h_st.drop(upper[0], inplace = True)
-                    box_h_st.drop(lower[0], inplace = True)   
-
-                    # Remove the outliers before calculating area_st variance
-                    Q1_area_st = np.percentile(area_st, 2.5, method = 'midpoint')
-                    Q3_area_st = np.percentile(area_st, 97.5,method = 'midpoint')
-                    IQR_area_st = Q3_area_st - Q1_area_st
-                    upper = np.where(area_st >= (Q3_area_st+1.5*IQR_area_st))
-                    lower = np.where(area_st <= (Q1_area_st-1.5*IQR_area_st))
-                    area_st.drop(upper[0], inplace = True)
-                    area_st.drop(lower[0], inplace = True)   
-
-                    # Remove the outliers before calculating width_st variance
-                    Q1_width_st = np.percentile(width_st, 2.5, method = 'midpoint')
-                    Q3_width_st = np.percentile(width_st, 97.5,method = 'midpoint')
-                    IQR_width_st = Q3_width_st - Q1_width_st
-                    upper = np.where(width_st >= (Q3_width_st+1.5*IQR_width_st))
-                    lower = np.where(width_st <= (Q1_width_st-1.5*IQR_width_st))
-                    width_st.drop(upper[0], inplace = True)
-                    width_st.drop(lower[0], inplace = True)  
-
-                    # Remove the outliers before calculating length_st variance
-                    Q1_length_st = np.percentile(length_st, 2.5, method = 'midpoint')
-                    Q3_length_st = np.percentile(length_st, 97.5,method = 'midpoint')
-                    IQR_length_st = Q3_length_st - Q1_length_st
-                    upper = np.where(length_st >= (Q3_length_st+1.5*IQR_length_st))
-                    lower = np.where(length_st <= (Q1_length_st-1.5*IQR_length_st))
-                    length_st.drop(upper[0], inplace = True)
-                    length_st.drop(lower[0], inplace = True)
-
-                    # Remove the outliers before calculating var_area_st variance
-                    # Q1_var_area_st = np.percentile(var_area_st, 5, method = 'midpoint')
-                    # Q3_var_area_st = np.percentile(var_area_st, 95,method = 'midpoint')
-                    # IQR_var_area_st = Q3_var_area_st - Q1_var_area_st
-                    # upper = np.where(var_area_st >= (Q3_var_area_st+1.5*IQR_var_area_st))
-                    # lower = np.where(var_area_st <= (Q1_var_area_st-1.5*IQR_var_area_st))
-                    # var_area_st.drop(upper[0], inplace = True)
-                    # var_area_st.drop(lower[0], inplace = True)
-                    var_area_st = var_area_st[-1:] 
-
-                    # Remove the outliers before calculating var_width_st variance
-                    # Q1_var_width_st = np.percentile(var_width_st, 5, method = 'midpoint')
-                    # Q3_var_width_st = np.percentile(var_width_st, 95,method = 'midpoint')
-                    # IQR_var_width_st = Q3_var_width_st - Q1_var_width_st
-                    # upper = np.where(var_width_st >= (Q3_var_width_st+1.5*IQR_var_width_st))
-                    # lower = np.where(var_width_st <= (Q1_var_width_st-1.5*IQR_var_width_st))
-                    # var_width_st.drop(upper[0], inplace = True)
-                    # var_width_st.drop(lower[0], inplace = True) 
-                    var_width_st = var_width_st[-1:]                 
-
-                    # Remove the outliers before calculating var_length_st variance
-                    # Q1_var_length_st = np.percentile(var_length_st, 5, method = 'midpoint')
-                    # Q3_var_length_st = np.percentile(var_length_st, 95,method = 'midpoint')
-                    # IQR_var_length_st = Q3_var_length_st - Q1_var_length_st
-                    # upper = np.where(var_length_st >= (Q3_var_length_st+1.5*IQR_var_length_st))
-                    # lower = np.where(var_length_st <= (Q1_var_length_st-1.5*IQR_var_length_st))
-                    # var_length_st.drop(upper[0], inplace = True)
-                    # var_length_st.drop(lower[0], inplace = True) 
-                    var_length_st = var_length_st[-1:]                
-
-                    # Remove the outliers before calculating guardCell_length variance
-                    Q1_guardCell_length = np.percentile(guardCell_length, 2.5, method = 'midpoint')
-                    Q3_guardCell_length = np.percentile(guardCell_length, 97.5,method = 'midpoint')
-                    IQR_guardCell_length = Q3_guardCell_length - Q1_guardCell_length
-                    upper = np.where(guardCell_length >= (Q3_guardCell_length+1.5*IQR_guardCell_length))
-                    lower = np.where(guardCell_length <= (Q1_guardCell_length-1.5*IQR_guardCell_length))
-                    guardCell_length.drop(upper[0], inplace = True)
-                    guardCell_length.drop(lower[0], inplace = True) 
-                    
-                    # Remove the outliers before calculating guardCell_width variance
-                    Q1_guardCell_width = np.percentile(guardCell_width, 2.5, method = 'midpoint')
-                    Q3_guardCell_width = np.percentile(guardCell_width, 97.5,method = 'midpoint')
-                    IQR_guardCell_width = Q3_guardCell_width - Q1_guardCell_width
-                    upper = np.where(guardCell_width >= (Q3_guardCell_width+1.5*IQR_guardCell_width))
-                    lower = np.where(guardCell_width <= (Q1_guardCell_width-1.5*IQR_guardCell_width))
-                    guardCell_width.drop(upper[0], inplace = True)
-                    guardCell_width.drop(lower[0], inplace = True) 
-
-                    # Remove the outliers before calculating guardCell_area variance
-                    Q1_guardCell_area = np.percentile(guardCell_area, 2.5, method = 'midpoint')
-                    Q3_guardCell_area = np.percentile(guardCell_area, 97.5,method = 'midpoint')
-                    IQR_guardCell_area = Q3_guardCell_area - Q1_guardCell_area
-                    upper = np.where(guardCell_area >= (Q3_guardCell_area+1.5*IQR_guardCell_area))
-                    lower = np.where(guardCell_area <= (Q1_guardCell_area-1.5*IQR_guardCell_area))
-                    guardCell_area.drop(upper[0], inplace = True)
-                    guardCell_area.drop(lower[0], inplace = True) 
-
-                    # Remove the outliers before calculating var_angle variance
-                    # Q1_var_angle = np.percentile(var_angle, 5, method = 'midpoint')
-                    # Q3_var_angle = np.percentile(var_angle, 95,method = 'midpoint')
-                    # IQR_var_angle = Q3_var_angle - Q1_var_angle
-                    # upper = np.where(var_angle >= (Q3_var_angle+1.5*IQR_var_angle))
-                    # lower = np.where(var_angle <= (Q1_var_angle-1.5*IQR_var_angle))
-                    # var_angle.drop(upper[0], inplace = True)
-                    # var_angle.drop(lower[0], inplace = True) 
-
-                    # Remove the outliers before calculating var_width_guardCell variance
-                    # Q1_var_width_guardCell = np.percentile(var_width_guardCell, 5, method = 'midpoint')
-                    # Q3_var_width_guardCell = np.percentile(var_width_guardCell, 95,method = 'midpoint')
-                    # IQR_var_width_guardCell = Q3_var_width_guardCell - Q1_var_width_guardCell
-                    # upper = np.where(var_width_guardCell >= (Q3_var_width_guardCell+1.5*IQR_var_width_guardCell))
-                    # lower = np.where(var_width_guardCell <= (Q1_var_width_guardCell-1.5*IQR_var_width_guardCell))
-                    # var_width_guardCell.drop(upper[0], inplace = True)
-                    # var_width_guardCell.drop(lower[0], inplace = True)
-                    var_width_guardCell = var_width_guardCell[-1:]                  
-
-                    # Remove the outliers before calculating var_length_guardCell variance
-                    # Q1_var_length_guardCell = np.percentile(var_length_guardCell, 5, method = 'midpoint')
-                    # Q3_var_length_guardCell = np.percentile(var_length_guardCell, 95,method = 'midpoint')
-                    # IQR_var_length_guardCell = Q3_var_length_guardCell - Q1_var_length_guardCell
-                    # upper = np.where(var_length_guardCell >= (Q3_var_length_guardCell+1.5*IQR_var_length_guardCell))
-                    # lower = np.where(var_length_guardCell <= (Q1_var_length_guardCell-1.5*IQR_var_length_guardCell))
-                    # var_length_guardCell.drop(upper[0], inplace = True)
-                    # var_length_guardCell.drop(lower[0], inplace = True) 
-                    var_length_guardCell = var_length_guardCell[-1:] 
-
-                    # Remove the outliers before calculating ratio_area_st_gc variance
-                    Q1_ratio_area_st_gc = np.percentile(ratio_area_st_gc, 2.5, method = 'midpoint')
-                    Q3_ratio_area_st_gc = np.percentile(ratio_area_st_gc, 97.5,method = 'midpoint')
-                    IQR_ratio_area_st_gc = Q3_ratio_area_st_gc - Q1_ratio_area_st_gc
-                    upper = np.where(ratio_area_st_gc >= (Q3_ratio_area_st_gc+1.5*IQR_ratio_area_st_gc))
-                    lower = np.where(ratio_area_st_gc <= (Q1_ratio_area_st_gc-1.5*IQR_ratio_area_st_gc))
-                    ratio_area_st_gc.drop(upper[0], inplace = True)
-                    ratio_area_st_gc.drop(lower[0], inplace = True) 
-
-                    # Remove the outliers before calculating ratio_area_to_img variance
-                    ratio_area_to_img = ratio_area_to_img[-1:] 
-
-
-
-                    # calculate the median, mean, variance of each leaf stomata number, stomata area
-
-                    No_wst_mean_ = np.mean(number_wst)
-                    No_wst_median_ = np.median(number_wst)
-                    No_wst_min_ = min(number_wst)
-                    No_wst_max_ = max(number_wst)
-
-                    box_w_wst_mean_ = np.mean(box_w_wst)
-                    box_w_wst_median_ = np.median(box_w_wst)
-                    box_w_wst_min_ = min(box_w_wst)
-                    box_w_wst_max_ = max(box_w_wst)
-
-                    box_h_wst_mean_ = np.mean(box_h_wst)
-                    box_h_wst_median_ = np.median(box_h_wst)
-                    box_h_wst_min_ = min(box_h_wst)
-                    box_h_wst_max_ = max(box_h_wst)
-
-                    area_wst_mean_ = np.mean(area_wst)
-                    area_wst_median_ = np.median(area_wst)
-                    area_wst_min_ = min(area_wst)
-                    area_wst_max_ = max(area_wst)
-
-                    width_wst_mean_ = np.mean(width_wst)
-                    width_wst_median_ = np.median(width_wst)
-                    width_wst_min_ = min(width_wst)
-                    width_wst_max_ = max(width_wst)
-
-                    length_wst_mean_ = np.mean(length_wst)
-                    length_wst_median_ = np.median(length_wst)
-                    length_wst_min_ = min(length_wst)
-                    length_wst_max_ = max(length_wst)
-
-                    var_area_wst_mean_ = np.mean(var_area_wst)
-                    var_area_wst_median_ = np.median(var_area_wst)
-                    var_area_wst_min_ = min(var_area_wst)
-                    var_area_wst_max_ = max(var_area_wst)
-
-                    var_width_wst_mean_ = np.mean(var_width_wst)
-                    var_width_wst_median_ = np.median(var_width_wst)
-                    var_width_wst_min_ = min(var_width_wst)
-                    var_width_wst_max_ = max(var_width_wst)
-
-                    var_length_wst_mean_ = np.mean(var_length_wst)
-                    var_length_wst_median_ = np.median(var_length_wst)
-                    var_length_wst_min_ = min(var_length_wst)
-                    var_length_wst_max_ = max(var_length_wst)  
-
-                    ## for stomata
-                    No_st_mean_ = np.mean(number_st)
-                    No_st_median_ = np.median(number_st)
-                    No_st_min_ = min(number_st)
-                    No_st_max_ = max(number_st)
-
-                    box_w_st_mean_ = np.mean(box_w_st)
-                    box_w_st_median_ = np.median(box_w_st)
-                    box_w_st_min_ = min(box_w_st)
-                    box_w_st_max_ = max(box_w_st)
-
-                    box_h_st_mean_ = np.mean(box_h_st)
-                    box_h_st_median_ = np.median(box_h_st)
-                    box_h_st_min_ = min(box_h_st)
-                    box_h_st_max_ = max(box_h_st)
-
-                    area_st_mean_ = np.mean(area_st)
-                    area_st_median_ = np.median(area_st)
-                    area_st_min_ = min(area_st)
-                    area_st_max_ = max(area_st)
-
-                    width_st_mean_ = np.mean(width_st)
-                    width_st_median_ = np.median(width_st)
-                    width_st_min_ = min(width_st)
-                    width_st_max_ = max(width_st)
-
-                    length_st_mean_ = np.mean(length_st)
-                    length_st_median_ = np.median(length_st)
-                    length_st_min_ = min(length_st)
-                    length_st_max_ = max(length_st)
-
-                    var_area_st_mean_ = np.mean(var_area_st)
-                    var_area_st_median_ = np.median(var_area_st)
-                    var_area_st_min_ = min(var_area_st)
-                    var_area_st_max_ = max(var_area_st)
-
-                    var_width_st_mean_ = np.mean(var_width_st)
-                    var_width_st_median_ = np.median(var_width_st)
-                    var_width_st_min_ = min(var_width_st)
-                    var_width_st_max_ = max(var_width_st)
-
-                    var_length_st_mean_ = np.mean(var_length_st)
-                    var_length_st_median_ = np.median(var_length_st)
-                    var_length_st_min_ = min(var_length_st)
-                    var_length_st_max_ = max(var_length_st)  
-
-                    ## for guard cell
-                    guardCell_length_mean_ = np.mean(guardCell_length)  
-                    guardCell_length_median_ = np.median(guardCell_length)  
-                    guardCell_length_min_ = min(guardCell_length)
-                    guardCell_length_max_ = max(guardCell_length)    
-
-                    guardCell_width_mean_ = np.mean(guardCell_width)
-                    guardCell_width_median_ = np.median(guardCell_width)
-                    guardCell_width_min_ = min(guardCell_width)
-                    guardCell_width_max_ = max(guardCell_width)
-
-                    guardCell_area_mean_ = np.mean(guardCell_area)
-                    guardCell_area_median_ = np.median(guardCell_area)
-                    guardCell_area_min_ = min(guardCell_area)
-                    guardCell_area_max_ = max(guardCell_area)
-
-                    guardCell_angle_mean_ = np.mean(guardCell_angle)
-                    guardCell_angle_median_ = np.median(guardCell_angle)
-                    guardCell_angle_min_ = min(guardCell_angle)
-                    guardCell_angle_max_ = max(guardCell_angle)
-
-                    var_width_guardCell_mean_ = np.mean(var_width_guardCell)
-                    var_width_guardCell_median_ = np.median(var_width_guardCell)
-                    var_width_guardCell_min_ = min(var_width_guardCell)
-                    var_width_guardCell_max_ = max(var_width_guardCell)
-
-                    var_length_guardCell_mean_ = np.mean(var_length_guardCell)
-                    var_length_guardCell_median_ = np.median(var_length_guardCell)
-                    var_length_guardCell_min_ = min(var_length_guardCell)
-                    var_length_guardCell_max_ = max(var_length_guardCell)
-
-                    wst_density_mean_ = np.mean(wst_density)
-                    wst_density_median_ = np.median(wst_density)
-                    wst_density_min_ = min(wst_density)
-                    wst_density_max_ = max(wst_density)
-
-                    ratio_area_st_gc_mean_ = np.mean(ratio_area_st_gc)
-                    ratio_area_st_gc_median_ = np.median(ratio_area_st_gc)
-                    ratio_area_st_gc_min_ = min(ratio_area_st_gc)
-                    ratio_area_st_gc_max_ = max(ratio_area_st_gc)
-
-                    ratio_area_to_img_mean_ = np.mean(ratio_area_to_img)
-                    ratio_area_to_img_median_ = np.median(ratio_area_to_img)
-                    ratio_area_to_img_min_ = min(ratio_area_to_img)
-                    ratio_area_to_img_max_ = max(ratio_area_to_img)
-
-                    var_angle_mean_ = np.mean(var_angle)
-                    var_angle_median_ = np.median(var_angle)
-                    var_angle_min_ = min(var_angle)
-                    var_angle_max_ = max(var_angle)
-
-                    ## append these measurements to the lists
-                    # for whole_stomata
-                    No_wst_mean.append(No_wst_mean_)
-                    No_wst_median.append(No_wst_median_)
-                    No_wst_min.append(No_wst_min_)
-                    No_wst_max.append(No_wst_max_)
-
-                    box_w_wst_mean.append(box_w_wst_mean_)
-                    box_w_wst_median.append(box_w_wst_median_)
-                    box_w_wst_min.append(box_w_wst_min_)
-                    box_w_wst_max.append(box_w_wst_max_)
-
-                    box_h_wst_mean.append(box_h_wst_mean_)
-                    box_h_wst_median.append(box_h_wst_median_)
-                    box_h_wst_min.append(box_h_wst_min_)
-                    box_h_wst_max.append(box_h_wst_max_)
-
-                    area_wst_mean.append(area_wst_mean_)
-                    area_wst_median.append(area_wst_median_)
-                    area_wst_min.append(area_wst_min_)
-                    area_wst_max.append(area_wst_max_)
-
-                    width_wst_mean.append(width_wst_mean_)
-                    width_wst_median.append(width_wst_median_)
-                    width_wst_min.append(width_wst_min_)
-                    width_wst_max.append(width_wst_max_)
-
-                    length_wst_mean.append(length_wst_mean_)
-                    length_wst_median.append(length_wst_median_)
-                    length_wst_min.append(length_wst_min_)
-                    length_wst_max.append(length_wst_max_)
-
-                    var_area_wst_mean.append(var_area_wst_mean_)
-                    var_area_wst_median.append(var_area_wst_median_)
-                    var_area_wst_min.append(var_area_wst_min_)
-                    var_area_wst_max.append(var_area_wst_max_)
-
-                    var_width_wst_mean.append(var_width_wst_mean_)
-                    var_width_wst_median.append(var_width_wst_median_)
-                    var_width_wst_min.append(var_width_wst_min_)
-                    var_width_wst_max.append(var_width_wst_max_)
-
-                    var_length_wst_mean.append(var_length_wst_mean_)
-                    var_length_wst_median.append(var_length_wst_median_)
-                    var_length_wst_min.append(var_length_wst_min_)
-                    var_length_wst_max.append(var_length_wst_max_)    
-
-                    ## for stomata
-                    No_st_mean.append(No_st_mean_)
-                    No_st_median.append(No_st_median_)
-                    No_st_min.append(No_st_min_)
-                    No_st_max.append(No_st_max_)
-
-                    box_w_st_mean.append(box_w_st_mean_)
-                    box_w_st_median.append(box_w_st_median_)
-                    box_w_st_min.append(box_w_st_min_)
-                    box_w_st_max.append(box_w_st_max_)
-
-                    box_h_st_mean.append(box_h_st_mean_)
-                    box_h_st_median.append(box_h_st_median_)
-                    box_h_st_min.append(box_h_st_min_)
-                    box_h_st_max.append(box_h_st_max_)
-
-                    area_st_mean.append(area_st_mean_)
-                    area_st_median.append(area_st_median_)
-                    area_st_min.append(area_st_min_)
-                    area_st_max.append(area_st_max_)
-
-                    width_st_mean.append(width_st_mean_)
-                    width_st_median.append(width_st_median_)
-                    width_st_min.append(width_st_min_)
-                    width_st_max.append(width_st_max_)
-
-                    length_st_mean.append(length_st_mean_)
-                    length_st_median.append(length_st_median_)
-                    length_st_min.append(length_st_min_)
-                    length_st_max.append(length_st_max_)
-
-                    var_area_st_mean.append(var_area_st_mean_)
-                    var_area_st_median.append(var_area_st_median_)
-                    var_area_st_min.append(var_area_st_min_)
-                    var_area_st_max.append(var_area_st_max_)
-
-                    var_width_st_mean.append(var_width_st_mean_)
-                    var_width_st_median.append(var_width_st_median_)
-                    var_width_st_min.append(var_width_st_min_)
-                    var_width_st_max.append(var_width_st_max_)
-
-                    var_length_st_mean.append(var_length_st_mean_)
-                    var_length_st_median.append(var_length_st_median_)
-                    var_length_st_min.append(var_length_st_min_)
-                    var_length_st_max.append(var_length_st_max_)  
-
-                    ## for guard cell
-                    guardCell_length_mean.append(guardCell_length_mean_) 
-                    guardCell_length_median.append(guardCell_length_median_)  
-                    guardCell_length_min.append(guardCell_length_min_)
-                    guardCell_length_max.append(guardCell_length_max_)    
-
-                    guardCell_width_mean.append(guardCell_width_mean_)
-                    guardCell_width_median.append(guardCell_width_median_)
-                    guardCell_width_min.append(guardCell_width_min_)
-                    guardCell_width_max.append(guardCell_width_max_)
-
-                    guardCell_area_mean.append(guardCell_area_mean_)
-                    guardCell_area_median.append(guardCell_area_median_)
-                    guardCell_area_min.append(guardCell_area_min_)
-                    guardCell_area_max.append(guardCell_area_max_)
-
-                    guardCell_angle_mean.append(guardCell_angle_mean_)
-                    guardCell_angle_median.append(guardCell_angle_median_)
-                    guardCell_angle_min.append(guardCell_angle_min_)
-                    guardCell_angle_max.append(guardCell_angle_max_)
-
-                    var_width_guardCell_mean.append(var_width_guardCell_mean_)
-                    var_width_guardCell_median.append(var_width_guardCell_median_)
-                    var_width_guardCell_min.append(var_width_guardCell_min_)
-                    var_width_guardCell_max.append(var_width_guardCell_max_)
-
-                    var_length_guardCell_mean.append(var_length_guardCell_mean_)
-                    var_length_guardCell_median.append(var_length_guardCell_median_)
-                    var_length_guardCell_min.append(var_length_guardCell_min_)
-                    var_length_guardCell_max.append(var_length_guardCell_max_)
-
-                    wst_density_mean.append(wst_density_mean_)
-                    wst_density_median.append(wst_density_median_)
-                    wst_density_min.append(wst_density_min_)
-                    wst_density_max.append(wst_density_max_)
-
-                    ratio_area_st_gc_mean.append(ratio_area_st_gc_mean_)
-                    ratio_area_st_gc_median.append(ratio_area_st_gc_median_)
-                    ratio_area_st_gc_min.append(ratio_area_st_gc_min_)
-                    ratio_area_st_gc_max.append(ratio_area_st_gc_max_)
-
-                    var_angle_mean.append(var_angle_mean_)
-                    var_angle_median.append(var_angle_median_)
-                    var_angle_min.append(var_angle_min_)
-                    var_angle_max.append(var_angle_max_)
-
-                    ratio_area_to_img_mean.append(ratio_area_to_img_mean_)
-                    ratio_area_to_img_median.append(ratio_area_to_img_median_)
-                    ratio_area_to_img_min.append(ratio_area_to_img_min_)
-                    ratio_area_to_img_max.append(ratio_area_to_img_max_)
-                    
-                    self.progressBar.setValue(int((self.img_num / len(glob.glob(output_image_path_ + '/' + '*.csv'))*100)))
-                    QtWidgets.QApplication.processEvents()
-
-                    self.img_num +=1                  
-
-            # Convert all lists into pd.series
-            Filename = pd.Series(Filename, dtype=pd.StringDtype(), name="Filename")
-            
-            No_wst_mean = pd.Series(No_wst_mean, dtype=pd.Float64Dtype(), name="No_wst_mean").map('{:,.0f}'.format)
-            No_wst_median = pd.Series(No_wst_median, dtype=pd.Float64Dtype(), name="No_wst_median").map('{:,.0f}'.format)
-            No_wst_min = pd.Series(No_wst_min, dtype=pd.Float64Dtype(), name="No_wst_min").map('{:,.0f}'.format)
-            No_wst_max = pd.Series(No_wst_max, dtype=pd.Float64Dtype(), name="No_wst_max").map('{:,.0f}'.format)
-
-            box_w_wst_mean = pd.Series(box_w_wst_mean, dtype=pd.Float64Dtype(), name="box_w_wst_mean").map('{:,.0f}'.format)
-            box_w_wst_median = pd.Series(box_w_wst_median, dtype=pd.Float64Dtype(), name="box_w_wst_median").map('{:,.0f}'.format)
-            box_w_wst_min = pd.Series(box_w_wst_min, dtype=pd.Float64Dtype(), name="box_w_wst_min").map('{:,.0f}'.format)
-            box_w_wst_max = pd.Series(box_w_wst_max, dtype=pd.Float64Dtype(), name="box_w_wst_max").map('{:,.0f}'.format)
-
-            box_h_wst_mean = pd.Series(box_h_wst_mean, dtype=pd.Float64Dtype(), name="box_h_wst_mean").map('{:,.0f}'.format)
-            box_h_wst_median = pd.Series(box_h_wst_median, dtype=pd.Float64Dtype(), name="box_h_wst_median").map('{:,.0f}'.format)
-            box_h_wst_min = pd.Series(box_h_wst_min, dtype=pd.Float64Dtype(), name="box_h_wst_min").map('{:,.0f}'.format)
-            box_h_wst_max = pd.Series(box_h_wst_max, dtype=pd.Float64Dtype(), name="box_h_wst_max").map('{:,.0f}'.format)
-
-            area_wst_mean = pd.Series(area_wst_mean, dtype=pd.Float64Dtype(), name="area_wst_mean").map('{:,.0f}'.format)
-            area_wst_median = pd.Series(area_wst_median, dtype=pd.Float64Dtype(), name="area_wst_median").map('{:,.0f}'.format)
-            area_wst_min = pd.Series(area_wst_min, dtype=pd.Float64Dtype(), name="area_wst_min").map('{:,.0f}'.format)
-            area_wst_max = pd.Series(area_wst_max, dtype=pd.Float64Dtype(), name="area_wst_max").map('{:,.0f}'.format)
-
-            width_wst_mean = pd.Series(width_wst_mean, dtype=pd.Float64Dtype(), name="width_wst_mean").map('{:,.0f}'.format)
-            width_wst_median = pd.Series(width_wst_median, dtype=pd.Float64Dtype(), name="width_wst_median").map('{:,.0f}'.format)
-            width_wst_min = pd.Series(width_wst_min, dtype=pd.Float64Dtype(), name="width_wst_min").map('{:,.0f}'.format)
-            width_wst_max = pd.Series(width_wst_max, dtype=pd.Float64Dtype(), name="width_wst_max").map('{:,.0f}'.format)
-
-            length_wst_mean = pd.Series(length_wst_mean, dtype=pd.Float64Dtype(), name="length_wst_mean").map('{:,.0f}'.format)
-            length_wst_median = pd.Series(length_wst_median, dtype=pd.Float64Dtype(), name="length_wst_median").map('{:,.0f}'.format)
-            length_wst_min = pd.Series(length_wst_min, dtype=pd.Float64Dtype(), name="length_wst_min").map('{:,.0f}'.format)
-            length_wst_max = pd.Series(length_wst_max, dtype=pd.Float64Dtype(), name="length_wst_max").map('{:,.0f}'.format)
-
-            var_area_wst_mean = pd.Series(var_area_wst_mean, dtype=pd.Float64Dtype(), name="var_area_wst_mean").map('{:,.0f}'.format)
-            var_area_wst_median = pd.Series(var_area_wst_median, dtype=pd.Float64Dtype(), name="var_area_wst_median").map('{:,.0f}'.format)
-            var_area_wst_min = pd.Series(var_area_wst_min, dtype=pd.Float64Dtype(), name="var_area_wst_min").map('{:,.0f}'.format)
-            var_area_wst_max = pd.Series(var_area_wst_max, dtype=pd.Float64Dtype(), name="var_area_wst_max").map('{:,.0f}'.format)
-
-            var_width_wst_mean = pd.Series(var_width_wst_mean, dtype=pd.Float64Dtype(), name="var_width_wst_mean").map('{:,.0f}'.format)
-            var_width_wst_median = pd.Series(var_width_wst_median, dtype=pd.Float64Dtype(), name="var_width_wst_median").map('{:,.0f}'.format)
-            var_width_wst_min = pd.Series(var_width_wst_min, dtype=pd.Float64Dtype(), name="var_width_wst_min").map('{:,.0f}'.format)
-            var_width_wst_max = pd.Series(var_width_wst_max, dtype=pd.Float64Dtype(), name="var_width_wst_max").map('{:,.0f}'.format)       
-
-            var_length_wst_mean = pd.Series(var_length_wst_mean, dtype=pd.Float64Dtype(), name="var_length_wst_mean").map('{:,.0f}'.format)
-            var_length_wst_median = pd.Series(var_length_wst_median, dtype=pd.Float64Dtype(), name="var_length_wst_median").map('{:,.0f}'.format)
-            var_length_wst_min = pd.Series(var_length_wst_min, dtype=pd.Float64Dtype(), name="var_length_wst_min").map('{:,.0f}'.format)
-            var_length_wst_max = pd.Series(var_length_wst_max, dtype=pd.Float64Dtype(), name="var_length_wst_max").map('{:,.0f}'.format)   
-
-            No_st_mean = pd.Series(No_st_mean, dtype=pd.Float64Dtype(), name="No_st_mean").map('{:,.0f}'.format)
-            No_st_median = pd.Series(No_st_median, dtype=pd.Float64Dtype(), name="No_st_median").map('{:,.0f}'.format)
-            No_st_min = pd.Series(No_st_min, dtype=pd.Float64Dtype(), name="No_st_min").map('{:,.0f}'.format)
-            No_st_max = pd.Series(No_st_max, dtype=pd.Float64Dtype(), name="No_st_max").map('{:,.0f}'.format)   
-
-            box_w_st_mean = pd.Series(box_w_st_mean, dtype=pd.Float64Dtype(), name="box_w_st_mean").map('{:,.0f}'.format)
-            box_w_st_median = pd.Series(box_w_st_median, dtype=pd.Float64Dtype(), name="box_w_st_median").map('{:,.0f}'.format)
-            box_w_st_min = pd.Series(box_w_st_min, dtype=pd.Float64Dtype(), name="box_w_st_min").map('{:,.0f}'.format)
-            box_w_st_max = pd.Series(box_w_st_max, dtype=pd.Float64Dtype(), name="box_w_st_max").map('{:,.0f}'.format)   
-
-            box_h_st_mean = pd.Series(box_h_st_mean, dtype=pd.Float64Dtype(), name="box_h_st_mean").map('{:,.0f}'.format)
-            box_h_st_median = pd.Series(box_h_st_median, dtype=pd.Float64Dtype(), name="box_h_st_median").map('{:,.0f}'.format)
-            box_h_st_min = pd.Series(box_h_st_min, dtype=pd.Float64Dtype(), name="box_h_st_min").map('{:,.0f}'.format)
-            box_h_st_max = pd.Series(box_h_st_max, dtype=pd.Float64Dtype(), name="box_h_st_max").map('{:,.0f}'.format)   
-
-            area_st_mean = pd.Series(area_st_mean, dtype=pd.Float64Dtype(), name="area_st_mean").map('{:,.0f}'.format)
-            area_st_median = pd.Series(area_st_median, dtype=pd.Float64Dtype(), name="area_st_median").map('{:,.0f}'.format)
-            area_st_min = pd.Series(area_st_min, dtype=pd.Float64Dtype(), name="area_st_min").map('{:,.0f}'.format)
-            area_st_max = pd.Series(area_st_max, dtype=pd.Float64Dtype(), name="area_st_max").map('{:,.0f}'.format)   
-
-            width_st_mean = pd.Series(width_st_mean, dtype=pd.Float64Dtype(), name="width_st_mean").map('{:,.0f}'.format)
-            width_st_median = pd.Series(width_st_median, dtype=pd.Float64Dtype(), name="width_st_median").map('{:,.0f}'.format)
-            width_st_min = pd.Series(width_st_min, dtype=pd.Float64Dtype(), name="width_st_min").map('{:,.0f}'.format)
-            width_st_max = pd.Series(width_st_max, dtype=pd.Float64Dtype(), name="width_st_max").map('{:,.0f}'.format)  
-
-            length_st_mean = pd.Series(length_st_mean, dtype=pd.Float64Dtype(), name="length_st_mean").map('{:,.0f}'.format)
-            length_st_median = pd.Series(length_st_median, dtype=pd.Float64Dtype(), name="length_st_median").map('{:,.0f}'.format)
-            length_st_min = pd.Series(length_st_min, dtype=pd.Float64Dtype(), name="length_st_min").map('{:,.0f}'.format)
-            length_st_max = pd.Series(length_st_max, dtype=pd.Float64Dtype(), name="length_st_max").map('{:,.0f}'.format)   
-
-            var_area_st_mean = pd.Series(var_area_st_mean, dtype=pd.Float64Dtype(), name="var_area_st_mean").map('{:,.0f}'.format)
-            var_area_st_median = pd.Series(var_area_st_median, dtype=pd.Float64Dtype(), name="var_area_st_median").map('{:,.0f}'.format)
-            var_area_st_min = pd.Series(var_area_st_min, dtype=pd.Float64Dtype(), name="var_area_st_min").map('{:,.0f}'.format)
-            var_area_st_max = pd.Series(var_area_st_max, dtype=pd.Float64Dtype(), name="var_area_st_max").map('{:,.0f}'.format)   
-
-            var_width_st_mean = pd.Series(var_width_st_mean, dtype=pd.Float64Dtype(), name="var_width_st_mean").map('{:,.0f}'.format)
-            var_width_st_median = pd.Series(var_width_st_median, dtype=pd.Float64Dtype(), name="var_width_st_median").map('{:,.0f}'.format)
-            var_width_st_min = pd.Series(var_width_st_min, dtype=pd.Float64Dtype(), name="var_width_st_min").map('{:,.0f}'.format)
-            var_width_st_max = pd.Series(var_width_st_max, dtype=pd.Float64Dtype(), name="var_width_st_max").map('{:,.0f}'.format)   
-
-            var_length_st_mean = pd.Series(var_length_st_mean, dtype=pd.Float64Dtype(), name="var_length_st_mean").map('{:,.0f}'.format)
-            var_length_st_median = pd.Series(var_length_st_median, dtype=pd.Float64Dtype(), name="var_length_st_median").map('{:,.0f}'.format)
-            var_length_st_min = pd.Series(var_length_st_min, dtype=pd.Float64Dtype(), name="var_length_st_min").map('{:,.0f}'.format)
-            var_length_st_max = pd.Series(var_length_st_max, dtype=pd.Float64Dtype(), name="var_length_st_max").map('{:,.0f}'.format)   
-
-            guardCell_length_mean = pd.Series(guardCell_length_mean, dtype=pd.Float64Dtype(), name="guardCell_length_mean").map('{:,.0f}'.format)
-            guardCell_length_median = pd.Series(guardCell_length_median, dtype=pd.Float64Dtype(), name="guardCell_length_median").map('{:,.0f}'.format)
-            guardCell_length_min = pd.Series(guardCell_length_min, dtype=pd.Float64Dtype(), name="guardCell_length_min").map('{:,.0f}'.format)
-            guardCell_length_max = pd.Series(guardCell_length_max, dtype=pd.Float64Dtype(), name="guardCell_length_max").map('{:,.0f}'.format)   
-
-            guardCell_width_mean = pd.Series(guardCell_width_mean, dtype=pd.Float64Dtype(), name="guardCell_width_mean").map('{:,.0f}'.format)
-            guardCell_width_median = pd.Series(guardCell_width_median, dtype=pd.Float64Dtype(), name="guardCell_width_median").map('{:,.0f}'.format)
-            guardCell_width_min = pd.Series(guardCell_width_min, dtype=pd.Float64Dtype(), name="guardCell_width_min").map('{:,.0f}'.format)
-            guardCell_width_max = pd.Series(guardCell_width_max, dtype=pd.Float64Dtype(), name="guardCell_width_max").map('{:,.0f}'.format)  
-
-            guardCell_area_mean = pd.Series(guardCell_area_mean, dtype=pd.Float64Dtype(), name="guardCell_area_mean").map('{:,.0f}'.format)
-            guardCell_area_median = pd.Series(guardCell_area_median, dtype=pd.Float64Dtype(), name="guardCell_area_median").map('{:,.0f}'.format)
-            guardCell_area_min = pd.Series(guardCell_area_min, dtype=pd.Float64Dtype(), name="guardCell_area_min").map('{:,.0f}'.format)
-            guardCell_area_max = pd.Series(guardCell_area_max, dtype=pd.Float64Dtype(), name="guardCell_area_max").map('{:,.0f}'.format) 
-
-            guardCell_angle_mean = pd.Series(guardCell_angle_mean, dtype=pd.Float64Dtype(), name="guardCell_angle_mean").map('{:,.0f}'.format)
-            guardCell_angle_median = pd.Series(guardCell_angle_median, dtype=pd.Float64Dtype(), name="guardCell_angle_median").map('{:,.0f}'.format)
-            guardCell_angle_min = pd.Series(guardCell_angle_min, dtype=pd.Float64Dtype(), name="guardCell_angle_min").map('{:,.0f}'.format)
-            guardCell_angle_max = pd.Series(guardCell_angle_max, dtype=pd.Float64Dtype(), name="guardCell_angle_max").map('{:,.0f}'.format)  
-
-            var_width_guardCell_mean = pd.Series(var_width_guardCell_mean, dtype=pd.Float64Dtype(), name="var_width_guardCell_mean").map('{:,.0f}'.format)
-            var_width_guardCell_median = pd.Series(var_width_guardCell_median, dtype=pd.Float64Dtype(), name="var_width_guardCell_median").map('{:,.0f}'.format)
-            var_width_guardCell_min = pd.Series(var_width_guardCell_min, dtype=pd.Float64Dtype(), name="var_width_guardCell_min").map('{:,.0f}'.format)
-            var_width_guardCell_max = pd.Series(var_width_guardCell_max, dtype=pd.Float64Dtype(), name="var_width_guardCell_max").map('{:,.0f}'.format)  
-
-            var_length_guardCell_mean = pd.Series(var_length_guardCell_mean, dtype=pd.Float64Dtype(), name="var_length_guardCell_mean").map('{:,.0f}'.format)
-            var_length_guardCell_median = pd.Series(var_length_guardCell_median, dtype=pd.Float64Dtype(), name="var_length_guardCell_median").map('{:,.0f}'.format)
-            var_length_guardCell_min = pd.Series(var_length_guardCell_min, dtype=pd.Float64Dtype(), name="var_length_guardCell_min").map('{:,.0f}'.format)
-            var_length_guardCell_max = pd.Series(var_length_guardCell_max, dtype=pd.Float64Dtype(), name="var_length_guardCell_max").map('{:,.0f}'.format)  
-
-            wst_density_mean = pd.Series(wst_density_mean, dtype=pd.Float64Dtype(), name="wst_density_mean").map('{:,.0f}'.format)
-            wst_density_median = pd.Series(wst_density_median, dtype=pd.Float64Dtype(), name="wst_density_median").map('{:,.0f}'.format)
-            wst_density_min = pd.Series(wst_density_min, dtype=pd.Float64Dtype(), name="wst_density_min").map('{:,.0f}'.format)
-            wst_density_max = pd.Series(wst_density_max, dtype=pd.Float64Dtype(), name="wst_density_max").map('{:,.0f}'.format)  
-
-            ratio_area_st_gc_mean = pd.Series(ratio_area_st_gc_mean, dtype=pd.Float64Dtype(), name="ratio_area_st_gc_mean").map('{:,.3f}'.format)
-            ratio_area_st_gc_median = pd.Series(ratio_area_st_gc_median, dtype=pd.Float64Dtype(), name="ratio_area_st_gc_median").map('{:,.3f}'.format)
-            ratio_area_st_gc_min = pd.Series(ratio_area_st_gc_min, dtype=pd.Float64Dtype(), name="ratio_area_st_gc_min").map('{:,.3f}'.format)
-            ratio_area_st_gc_max = pd.Series(ratio_area_st_gc_max, dtype=pd.Float64Dtype(), name="ratio_area_st_gc_max").map('{:,.3f}'.format) 
-
-            ratio_area_to_img_mean = pd.Series(ratio_area_to_img_mean, dtype=pd.Float64Dtype(), name="ratio_area_to_img_mean").map('{:,.3f}'.format)
-            ratio_area_to_img_median = pd.Series(ratio_area_to_img_median, dtype=pd.Float64Dtype(), name="ratio_area_to_img_median").map('{:,.3f}'.format)
-            ratio_area_to_img_min = pd.Series(ratio_area_to_img_min, dtype=pd.Float64Dtype(), name="ratio_area_to_img_min").map('{:,.3f}'.format)
-            ratio_area_to_img_max = pd.Series(ratio_area_to_img_max, dtype=pd.Float64Dtype(), name="ratio_area_to_img_max").map('{:,.3f}'.format) 
-
-            var_angle_mean = pd.Series(var_angle_mean, dtype=pd.Float64Dtype(), name="var_angle_mean").map('{:,.0f}'.format)
-            var_angle_median = pd.Series(var_angle_median, dtype=pd.Float64Dtype(), name="var_angle_median").map('{:,.0f}'.format)
-            var_angle_min = pd.Series(var_angle_min, dtype=pd.Float64Dtype(), name="var_angle_min").map('{:,.0f}'.format)
-            var_angle_max = pd.Series(var_angle_max, dtype=pd.Float64Dtype(), name="var_angle_max").map('{:,.0f}'.format)  
-
-            # Put all extracted parameters into a data frame
-            Output_data = pd.concat(
-                [Filename, 
-                No_wst_mean, 
-                No_wst_median,
-                No_wst_min, 
-                No_wst_max, 
-                box_w_wst_mean, 
-                box_w_wst_median,
-                box_w_wst_min, 
-                box_w_wst_max, 
-                box_h_wst_mean, 
-                box_h_wst_median, 
-                box_h_wst_min,
-                box_h_wst_max,
-                area_wst_mean,
-                area_wst_median,
-                area_wst_min,
-                area_wst_max,
-                width_wst_mean,
-                width_wst_median,
-                width_wst_min,
-                width_wst_max,
-                length_wst_mean,
-                length_wst_median,
-                length_wst_min,
-                length_wst_max,
-                var_area_wst_mean,
-                var_area_wst_median,
-                var_area_wst_min,
-                var_area_wst_max,
-                var_width_wst_mean,
-                var_width_wst_median,
-                var_width_wst_min,
-                var_width_wst_max,
-                var_length_wst_mean,
-                var_length_wst_median,
-                var_length_wst_min,
-                var_length_wst_max,
-                No_st_mean,
-                No_st_median,
-                No_st_min,
-                No_st_max,
-                box_w_st_mean,
-                box_w_st_median,
-                box_w_st_min,
-                box_w_st_max,
-                box_h_st_mean,
-                box_h_st_median,
-                box_h_st_min,
-                box_h_st_max,
-                area_st_mean,
-                area_st_median,
-                area_st_min,
-                area_st_max,
-                width_st_mean,
-                width_st_median,
-                width_st_min,
-                width_st_max,
-                length_st_mean,
-                length_st_median,
-                length_st_min,
-                length_st_max,
-                var_area_st_mean,
-                var_area_st_median,
-                var_area_st_min,
-                var_area_st_max,
-                var_width_st_mean,
-                var_width_st_median,
-                var_width_st_min,
-                var_width_st_max,
-                var_length_st_mean,
-                var_length_st_median,
-                var_length_st_min,
-                var_length_st_max,
-                guardCell_length_mean,
-                guardCell_length_median,
-                guardCell_length_min,
-                guardCell_length_max,
-                guardCell_width_mean,
-                guardCell_width_median,
-                guardCell_width_min,
-                guardCell_width_max,
-                guardCell_area_mean,
-                guardCell_area_median,
-                guardCell_area_min,
-                guardCell_area_max,
-                guardCell_angle_mean,
-                guardCell_angle_median,
-                guardCell_angle_min,
-                guardCell_angle_max,
-                var_width_guardCell_mean,
-                var_width_guardCell_median,
-                var_width_guardCell_min,
-                var_width_guardCell_max,
-                var_length_guardCell_mean,
-                var_length_guardCell_median,
-                var_length_guardCell_min,
-                var_length_guardCell_max,
-                wst_density_mean,
-                wst_density_median,
-                wst_density_min,
-                wst_density_max,
-                ratio_area_st_gc_mean,
-                ratio_area_st_gc_median,
-                ratio_area_st_gc_min,
-                ratio_area_st_gc_max,
-                ratio_area_to_img_mean,
-                ratio_area_to_img_median,
-                ratio_area_to_img_min,
-                ratio_area_to_img_max,
-                var_angle_mean,
-                var_angle_median,
-                var_angle_min,
-                var_angle_max], 
-                axis=1)
-            
-            Output_data = pd.DataFrame(data=Output_data)
-            random_str = ''.join(random.choices(string.ascii_uppercase, k=4))
-            Output_data.to_excel(output_image_path_ + "/" + "Stomata_output"+ "_" + random_str +".xlsx")
-            self.show_info_messagebox_group_analysis()
+                    if single_csv_file.shape[0]>=4:
+
+                        Filename.append(",".join([str(item) for item in Split_name]))
+                        # Extract the parameters from each single csv files
+                        number_wst = single_csv_file["number_wst"]
+                        box_w_wst = single_csv_file["box_w_wst"]
+                        box_h_wst = single_csv_file["box_h_wst"]  
+                        area_wst = single_csv_file["area_wst"]
+                        width_wst = single_csv_file["width_wst"]
+                        length_wst = single_csv_file["length_wst"]
+                        var_area_wst = single_csv_file["var_area_wst"]
+                        var_width_wst = single_csv_file["var_width_wst"]
+                        var_length_wst = single_csv_file["var_length_wst"]
+                        
+                        number_st = single_csv_file["number_st"]
+                        box_w_st = single_csv_file["box_w_st"]
+                        box_h_st = single_csv_file["box_h_st"]  
+                        area_st = single_csv_file["area_st"]
+                        width_st = single_csv_file["width_st"]
+                        length_st = single_csv_file["length_st"]
+                        var_area_st = single_csv_file["var_area_st"]
+                        var_width_st = single_csv_file["var_width_st"]
+                        var_length_st = single_csv_file["var_length_st"]
+
+                        guardCell_length = single_csv_file["guardCell_length"]
+                        guardCell_width = single_csv_file["guardCell_width"]
+                        guardCell_area = single_csv_file["guardCell_area"]
+                        guardCell_angle = single_csv_file["guardCell_angle"]
+                        var_angle = single_csv_file["var_angle"]
+                        var_width_guardCell = single_csv_file["var_width_guardCell"]
+                        var_length_guardCell = single_csv_file["var_length_guardCell"]
+                        wst_density = single_csv_file["wst_density"]
+                        ratio_area_st_gc = single_csv_file["ratio_area_st_gc"]
+                        ratio_area_to_img = single_csv_file["ratio_area_to_img"]
+
+                        # print(type(box_w_wst))
+
+                        # Remove the outliers before calculating box_w_wst variance
+                        Q1_box_w_wst = np.percentile(box_w_wst, 5, method = 'midpoint')
+                        Q3_box_w_wst = np.percentile(box_w_wst, 95, method = 'midpoint')
+                        IQR_box_w_wst = Q3_box_w_wst - Q1_box_w_wst
+                        upper = np.where(box_w_wst >= (Q3_box_w_wst+1.5*IQR_box_w_wst))
+                        lower = np.where(box_w_wst <= (Q1_box_w_wst-1.5*IQR_box_w_wst))
+                        box_w_wst.drop(upper[0], inplace = True)
+                        box_w_wst.drop(lower[0], inplace = True)
+
+                        # Remove the outliers before calculating box_h_wst variance
+                        Q1_box_h_wst = np.percentile(box_h_wst, 2.5, method = 'midpoint')
+                        Q3_box_h_wst = np.percentile(box_h_wst, 97.5,method = 'midpoint')
+                        IQR_box_h_wst = Q3_box_h_wst - Q1_box_h_wst
+                        upper = np.where(box_h_wst >= (Q3_box_h_wst+1.5*IQR_box_h_wst))
+                        lower = np.where(box_h_wst <= (Q1_box_h_wst-1.5*IQR_box_h_wst))
+                        box_h_wst.drop(upper[0], inplace = True)
+                        box_h_wst.drop(lower[0], inplace = True)
+
+                        # Remove the outliers before calculating area_wst variance
+                        Q1_area_wst = np.percentile(area_wst, 2.5, method = 'midpoint')
+                        Q3_area_wst = np.percentile(area_wst, 97.5,method = 'midpoint')
+                        IQR_area_wst = Q3_area_wst - Q1_area_wst
+                        upper = np.where(area_wst >= (Q3_area_wst+1.5*IQR_area_wst))
+                        lower = np.where(area_wst <= (Q1_area_wst-1.5*IQR_area_wst))
+                        area_wst.drop(upper[0], inplace = True)
+                        area_wst.drop(lower[0], inplace = True)
+
+                        # Remove the outliers before calculating width_wst variance
+                        Q1_width_wst = np.percentile(width_wst, 2.5, method = 'midpoint')
+                        Q3_width_wst = np.percentile(width_wst, 97.5,method = 'midpoint')
+                        IQR_width_wst = Q3_width_wst - Q1_width_wst
+                        upper = np.where(width_wst >= (Q3_width_wst+1.5*IQR_width_wst))
+                        lower = np.where(width_wst <= (Q1_width_wst-1.5*IQR_width_wst))
+                        width_wst.drop(upper[0], inplace = True)
+                        width_wst.drop(lower[0], inplace = True)
+
+                        # Remove the outliers before calculating length_wst variance
+                        Q1_length_wst = np.percentile(length_wst, 2.5, method = 'midpoint')
+                        Q3_length_wst = np.percentile(length_wst, 97.5,method = 'midpoint')
+                        IQR_length_wst = Q3_length_wst - Q1_length_wst
+                        upper = np.where(length_wst >= (Q3_length_wst+1.5*IQR_length_wst))
+                        lower = np.where(length_wst <= (Q1_length_wst-1.5*IQR_length_wst))
+                        length_wst.drop(upper[0], inplace = True)
+                        length_wst.drop(lower[0], inplace = True)
+
+                        # Remove the outliers before calculating var_area_wst variance
+                        # Q1_var_area_wst = np.percentile(var_area_wst, 5, method = 'midpoint')
+                        # Q3_var_area_wst = np.percentile(var_area_wst, 95,method = 'midpoint')
+                        # IQR_var_area_wst = Q3_var_area_wst - Q1_var_area_wst
+                        # upper = np.where(var_area_wst >= (Q3_var_area_wst+1.5*IQR_var_area_wst))
+                        # lower = np.where(var_area_wst <= (Q1_var_area_wst-1.5*IQR_var_area_wst))
+                        # var_area_wst.drop(upper[0], inplace = True)
+                        # var_area_wst.drop(lower[0], inplace = True)
+                        var_area_wst = var_area_wst[-1:]
+
+                        # Remove the outliers before calculating var_width_wst variance
+                        # Q1_var_width_wst = np.percentile(var_width_wst, 5, method = 'midpoint')
+                        # Q3_var_width_wst = np.percentile(var_width_wst, 95,method = 'midpoint')
+                        # IQR_var_width_wst = Q3_var_width_wst - Q1_var_width_wst
+                        # upper = np.where(var_width_wst >= (Q3_var_width_wst+1.5*IQR_var_width_wst))
+                        # lower = np.where(var_width_wst <= (Q1_var_width_wst-1.5*IQR_var_width_wst))
+                        # var_width_wst.drop(upper[0], inplace = True)
+                        # var_width_wst.drop(lower[0], inplace = True) 
+                        var_width_wst = var_width_wst[-1:]                
+
+                        var_angle = var_angle[-1:]   
+                        # Remove the outliers before calculating var_length_wst variance
+                        # Q1_var_length_wst = np.percentile(var_length_wst, 5, method = 'midpoint')
+                        # Q3_var_length_wst = np.percentile(var_length_wst, 95,method = 'midpoint')
+                        # IQR_var_length_wst = Q3_var_length_wst - Q1_var_length_wst
+                        # upper = np.where(var_length_wst >= (Q3_var_length_wst+1.5*IQR_var_length_wst))
+                        # lower = np.where(var_length_wst <= (Q1_var_length_wst-1.5*IQR_var_length_wst))
+                        # var_length_wst.drop(upper[0], inplace = True)
+                        # var_length_wst.drop(lower[0], inplace = True)  
+                        var_length_wst = var_length_wst[-1:] 
+
+                        # Remove the outliers before calculating box_w_st variance
+                        Q1_box_w_st = np.percentile(box_w_st, 2.5, method = 'midpoint')
+                        Q3_box_w_st = np.percentile(box_w_st, 97.5,method = 'midpoint')
+                        IQR_box_w_st = Q3_box_w_st - Q1_box_w_st
+                        upper = np.where(box_w_st >= (Q3_box_w_st+1.5*IQR_box_w_st))
+                        lower = np.where(box_w_st <= (Q1_box_w_st-1.5*IQR_box_w_st))
+                        box_w_st.drop(upper[0], inplace = True)
+                        box_w_st.drop(lower[0], inplace = True)                               
+
+                        # Remove the outliers before calculating box_h_st variance
+                        Q1_box_h_st = np.percentile(box_h_st, 2.5, method = 'midpoint')
+                        Q3_box_h_st = np.percentile(box_h_st, 97.5,method = 'midpoint')
+                        IQR_box_h_st = Q3_box_h_st - Q1_box_h_st
+                        upper = np.where(box_h_st >= (Q3_box_h_st+1.5*IQR_box_h_st))
+                        lower = np.where(box_h_st <= (Q1_box_h_st-1.5*IQR_box_h_st))
+                        box_h_st.drop(upper[0], inplace = True)
+                        box_h_st.drop(lower[0], inplace = True)   
+
+                        # Remove the outliers before calculating area_st variance
+                        Q1_area_st = np.percentile(area_st, 2.5, method = 'midpoint')
+                        Q3_area_st = np.percentile(area_st, 97.5,method = 'midpoint')
+                        IQR_area_st = Q3_area_st - Q1_area_st
+                        upper = np.where(area_st >= (Q3_area_st+1.5*IQR_area_st))
+                        lower = np.where(area_st <= (Q1_area_st-1.5*IQR_area_st))
+                        area_st.drop(upper[0], inplace = True)
+                        area_st.drop(lower[0], inplace = True)   
+
+                        # Remove the outliers before calculating width_st variance
+                        Q1_width_st = np.percentile(width_st, 2.5, method = 'midpoint')
+                        Q3_width_st = np.percentile(width_st, 97.5,method = 'midpoint')
+                        IQR_width_st = Q3_width_st - Q1_width_st
+                        upper = np.where(width_st >= (Q3_width_st+1.5*IQR_width_st))
+                        lower = np.where(width_st <= (Q1_width_st-1.5*IQR_width_st))
+                        width_st.drop(upper[0], inplace = True)
+                        width_st.drop(lower[0], inplace = True)  
+
+                        # Remove the outliers before calculating length_st variance
+                        Q1_length_st = np.percentile(length_st, 2.5, method = 'midpoint')
+                        Q3_length_st = np.percentile(length_st, 97.5,method = 'midpoint')
+                        IQR_length_st = Q3_length_st - Q1_length_st
+                        upper = np.where(length_st >= (Q3_length_st+1.5*IQR_length_st))
+                        lower = np.where(length_st <= (Q1_length_st-1.5*IQR_length_st))
+                        length_st.drop(upper[0], inplace = True)
+                        length_st.drop(lower[0], inplace = True)
+
+                        # Remove the outliers before calculating var_area_st variance
+                        # Q1_var_area_st = np.percentile(var_area_st, 5, method = 'midpoint')
+                        # Q3_var_area_st = np.percentile(var_area_st, 95,method = 'midpoint')
+                        # IQR_var_area_st = Q3_var_area_st - Q1_var_area_st
+                        # upper = np.where(var_area_st >= (Q3_var_area_st+1.5*IQR_var_area_st))
+                        # lower = np.where(var_area_st <= (Q1_var_area_st-1.5*IQR_var_area_st))
+                        # var_area_st.drop(upper[0], inplace = True)
+                        # var_area_st.drop(lower[0], inplace = True)
+                        var_area_st = var_area_st[-1:] 
+
+                        # Remove the outliers before calculating var_width_st variance
+                        # Q1_var_width_st = np.percentile(var_width_st, 5, method = 'midpoint')
+                        # Q3_var_width_st = np.percentile(var_width_st, 95,method = 'midpoint')
+                        # IQR_var_width_st = Q3_var_width_st - Q1_var_width_st
+                        # upper = np.where(var_width_st >= (Q3_var_width_st+1.5*IQR_var_width_st))
+                        # lower = np.where(var_width_st <= (Q1_var_width_st-1.5*IQR_var_width_st))
+                        # var_width_st.drop(upper[0], inplace = True)
+                        # var_width_st.drop(lower[0], inplace = True) 
+                        var_width_st = var_width_st[-1:]                 
+
+                        # Remove the outliers before calculating var_length_st variance
+                        # Q1_var_length_st = np.percentile(var_length_st, 5, method = 'midpoint')
+                        # Q3_var_length_st = np.percentile(var_length_st, 95,method = 'midpoint')
+                        # IQR_var_length_st = Q3_var_length_st - Q1_var_length_st
+                        # upper = np.where(var_length_st >= (Q3_var_length_st+1.5*IQR_var_length_st))
+                        # lower = np.where(var_length_st <= (Q1_var_length_st-1.5*IQR_var_length_st))
+                        # var_length_st.drop(upper[0], inplace = True)
+                        # var_length_st.drop(lower[0], inplace = True) 
+                        var_length_st = var_length_st[-1:]                
+
+                        # Remove the outliers before calculating guardCell_length variance
+                        Q1_guardCell_length = np.percentile(guardCell_length, 2.5, method = 'midpoint')
+                        Q3_guardCell_length = np.percentile(guardCell_length, 97.5,method = 'midpoint')
+                        IQR_guardCell_length = Q3_guardCell_length - Q1_guardCell_length
+                        upper = np.where(guardCell_length >= (Q3_guardCell_length+1.5*IQR_guardCell_length))
+                        lower = np.where(guardCell_length <= (Q1_guardCell_length-1.5*IQR_guardCell_length))
+                        guardCell_length.drop(upper[0], inplace = True)
+                        guardCell_length.drop(lower[0], inplace = True) 
+                        
+                        # Remove the outliers before calculating guardCell_width variance
+                        Q1_guardCell_width = np.percentile(guardCell_width, 2.5, method = 'midpoint')
+                        Q3_guardCell_width = np.percentile(guardCell_width, 97.5,method = 'midpoint')
+                        IQR_guardCell_width = Q3_guardCell_width - Q1_guardCell_width
+                        upper = np.where(guardCell_width >= (Q3_guardCell_width+1.5*IQR_guardCell_width))
+                        lower = np.where(guardCell_width <= (Q1_guardCell_width-1.5*IQR_guardCell_width))
+                        guardCell_width.drop(upper[0], inplace = True)
+                        guardCell_width.drop(lower[0], inplace = True) 
+
+                        # Remove the outliers before calculating guardCell_area variance
+                        Q1_guardCell_area = np.percentile(guardCell_area, 2.5, method = 'midpoint')
+                        Q3_guardCell_area = np.percentile(guardCell_area, 97.5,method = 'midpoint')
+                        IQR_guardCell_area = Q3_guardCell_area - Q1_guardCell_area
+                        upper = np.where(guardCell_area >= (Q3_guardCell_area+1.5*IQR_guardCell_area))
+                        lower = np.where(guardCell_area <= (Q1_guardCell_area-1.5*IQR_guardCell_area))
+                        guardCell_area.drop(upper[0], inplace = True)
+                        guardCell_area.drop(lower[0], inplace = True) 
+
+                        # Remove the outliers before calculating var_angle variance
+                        # Q1_var_angle = np.percentile(var_angle, 5, method = 'midpoint')
+                        # Q3_var_angle = np.percentile(var_angle, 95,method = 'midpoint')
+                        # IQR_var_angle = Q3_var_angle - Q1_var_angle
+                        # upper = np.where(var_angle >= (Q3_var_angle+1.5*IQR_var_angle))
+                        # lower = np.where(var_angle <= (Q1_var_angle-1.5*IQR_var_angle))
+                        # var_angle.drop(upper[0], inplace = True)
+                        # var_angle.drop(lower[0], inplace = True) 
+
+                        # Remove the outliers before calculating var_width_guardCell variance
+                        # Q1_var_width_guardCell = np.percentile(var_width_guardCell, 5, method = 'midpoint')
+                        # Q3_var_width_guardCell = np.percentile(var_width_guardCell, 95,method = 'midpoint')
+                        # IQR_var_width_guardCell = Q3_var_width_guardCell - Q1_var_width_guardCell
+                        # upper = np.where(var_width_guardCell >= (Q3_var_width_guardCell+1.5*IQR_var_width_guardCell))
+                        # lower = np.where(var_width_guardCell <= (Q1_var_width_guardCell-1.5*IQR_var_width_guardCell))
+                        # var_width_guardCell.drop(upper[0], inplace = True)
+                        # var_width_guardCell.drop(lower[0], inplace = True)
+                        var_width_guardCell = var_width_guardCell[-1:]                  
+
+                        # Remove the outliers before calculating var_length_guardCell variance
+                        # Q1_var_length_guardCell = np.percentile(var_length_guardCell, 5, method = 'midpoint')
+                        # Q3_var_length_guardCell = np.percentile(var_length_guardCell, 95,method = 'midpoint')
+                        # IQR_var_length_guardCell = Q3_var_length_guardCell - Q1_var_length_guardCell
+                        # upper = np.where(var_length_guardCell >= (Q3_var_length_guardCell+1.5*IQR_var_length_guardCell))
+                        # lower = np.where(var_length_guardCell <= (Q1_var_length_guardCell-1.5*IQR_var_length_guardCell))
+                        # var_length_guardCell.drop(upper[0], inplace = True)
+                        # var_length_guardCell.drop(lower[0], inplace = True) 
+                        var_length_guardCell = var_length_guardCell[-1:] 
+
+                        # Remove the outliers before calculating ratio_area_st_gc variance
+                        Q1_ratio_area_st_gc = np.percentile(ratio_area_st_gc, 2.5, method = 'midpoint')
+                        Q3_ratio_area_st_gc = np.percentile(ratio_area_st_gc, 97.5,method = 'midpoint')
+                        IQR_ratio_area_st_gc = Q3_ratio_area_st_gc - Q1_ratio_area_st_gc
+                        upper = np.where(ratio_area_st_gc >= (Q3_ratio_area_st_gc+1.5*IQR_ratio_area_st_gc))
+                        lower = np.where(ratio_area_st_gc <= (Q1_ratio_area_st_gc-1.5*IQR_ratio_area_st_gc))
+                        ratio_area_st_gc.drop(upper[0], inplace = True)
+                        ratio_area_st_gc.drop(lower[0], inplace = True) 
+
+                        # Remove the outliers before calculating ratio_area_to_img variance
+                        ratio_area_to_img = ratio_area_to_img[-1:] 
+
+
+
+                        # calculate the median, mean, variance of each leaf stomata number, stomata area
+
+                        No_wst_mean_ = np.mean(number_wst)
+                        No_wst_median_ = np.median(number_wst)
+                        No_wst_min_ = min(number_wst)
+                        No_wst_max_ = max(number_wst)
+
+                        box_w_wst_mean_ = np.mean(box_w_wst)
+                        box_w_wst_median_ = np.median(box_w_wst)
+                        box_w_wst_min_ = min(box_w_wst)
+                        box_w_wst_max_ = max(box_w_wst)
+
+                        box_h_wst_mean_ = np.mean(box_h_wst)
+                        box_h_wst_median_ = np.median(box_h_wst)
+                        box_h_wst_min_ = min(box_h_wst)
+                        box_h_wst_max_ = max(box_h_wst)
+
+                        area_wst_mean_ = np.mean(area_wst)
+                        area_wst_median_ = np.median(area_wst)
+                        area_wst_min_ = min(area_wst)
+                        area_wst_max_ = max(area_wst)
+
+                        width_wst_mean_ = np.mean(width_wst)
+                        width_wst_median_ = np.median(width_wst)
+                        width_wst_min_ = min(width_wst)
+                        width_wst_max_ = max(width_wst)
+
+                        length_wst_mean_ = np.mean(length_wst)
+                        length_wst_median_ = np.median(length_wst)
+                        length_wst_min_ = min(length_wst)
+                        length_wst_max_ = max(length_wst)
+
+                        var_area_wst_mean_ = np.mean(var_area_wst)
+                        var_area_wst_median_ = np.median(var_area_wst)
+                        var_area_wst_min_ = min(var_area_wst)
+                        var_area_wst_max_ = max(var_area_wst)
+
+                        var_width_wst_mean_ = np.mean(var_width_wst)
+                        var_width_wst_median_ = np.median(var_width_wst)
+                        var_width_wst_min_ = min(var_width_wst)
+                        var_width_wst_max_ = max(var_width_wst)
+
+                        var_length_wst_mean_ = np.mean(var_length_wst)
+                        var_length_wst_median_ = np.median(var_length_wst)
+                        var_length_wst_min_ = min(var_length_wst)
+                        var_length_wst_max_ = max(var_length_wst)  
+
+                        ## for stomata
+                        No_st_mean_ = np.mean(number_st)
+                        No_st_median_ = np.median(number_st)
+                        No_st_min_ = min(number_st)
+                        No_st_max_ = max(number_st)
+
+                        box_w_st_mean_ = np.mean(box_w_st)
+                        box_w_st_median_ = np.median(box_w_st)
+                        box_w_st_min_ = min(box_w_st)
+                        box_w_st_max_ = max(box_w_st)
+
+                        box_h_st_mean_ = np.mean(box_h_st)
+                        box_h_st_median_ = np.median(box_h_st)
+                        box_h_st_min_ = min(box_h_st)
+                        box_h_st_max_ = max(box_h_st)
+
+                        area_st_mean_ = np.mean(area_st)
+                        area_st_median_ = np.median(area_st)
+                        area_st_min_ = min(area_st)
+                        area_st_max_ = max(area_st)
+
+                        width_st_mean_ = np.mean(width_st)
+                        width_st_median_ = np.median(width_st)
+                        width_st_min_ = min(width_st)
+                        width_st_max_ = max(width_st)
+
+                        length_st_mean_ = np.mean(length_st)
+                        length_st_median_ = np.median(length_st)
+                        length_st_min_ = min(length_st)
+                        length_st_max_ = max(length_st)
+
+                        var_area_st_mean_ = np.mean(var_area_st)
+                        var_area_st_median_ = np.median(var_area_st)
+                        var_area_st_min_ = min(var_area_st)
+                        var_area_st_max_ = max(var_area_st)
+
+                        var_width_st_mean_ = np.mean(var_width_st)
+                        var_width_st_median_ = np.median(var_width_st)
+                        var_width_st_min_ = min(var_width_st)
+                        var_width_st_max_ = max(var_width_st)
+
+                        var_length_st_mean_ = np.mean(var_length_st)
+                        var_length_st_median_ = np.median(var_length_st)
+                        var_length_st_min_ = min(var_length_st)
+                        var_length_st_max_ = max(var_length_st)  
+
+                        ## for guard cell
+                        guardCell_length_mean_ = np.mean(guardCell_length)  
+                        guardCell_length_median_ = np.median(guardCell_length)  
+                        guardCell_length_min_ = min(guardCell_length)
+                        guardCell_length_max_ = max(guardCell_length)    
+
+                        guardCell_width_mean_ = np.mean(guardCell_width)
+                        guardCell_width_median_ = np.median(guardCell_width)
+                        guardCell_width_min_ = min(guardCell_width)
+                        guardCell_width_max_ = max(guardCell_width)
+
+                        guardCell_area_mean_ = np.mean(guardCell_area)
+                        guardCell_area_median_ = np.median(guardCell_area)
+                        guardCell_area_min_ = min(guardCell_area)
+                        guardCell_area_max_ = max(guardCell_area)
+
+                        guardCell_angle_mean_ = np.mean(guardCell_angle)
+                        guardCell_angle_median_ = np.median(guardCell_angle)
+                        guardCell_angle_min_ = min(guardCell_angle)
+                        guardCell_angle_max_ = max(guardCell_angle)
+
+                        var_width_guardCell_mean_ = np.mean(var_width_guardCell)
+                        var_width_guardCell_median_ = np.median(var_width_guardCell)
+                        var_width_guardCell_min_ = min(var_width_guardCell)
+                        var_width_guardCell_max_ = max(var_width_guardCell)
+
+                        var_length_guardCell_mean_ = np.mean(var_length_guardCell)
+                        var_length_guardCell_median_ = np.median(var_length_guardCell)
+                        var_length_guardCell_min_ = min(var_length_guardCell)
+                        var_length_guardCell_max_ = max(var_length_guardCell)
+
+                        wst_density_mean_ = np.mean(wst_density)
+                        wst_density_median_ = np.median(wst_density)
+                        wst_density_min_ = min(wst_density)
+                        wst_density_max_ = max(wst_density)
+
+                        ratio_area_st_gc_mean_ = np.mean(ratio_area_st_gc)
+                        ratio_area_st_gc_median_ = np.median(ratio_area_st_gc)
+                        ratio_area_st_gc_min_ = min(ratio_area_st_gc)
+                        ratio_area_st_gc_max_ = max(ratio_area_st_gc)
+
+                        ratio_area_to_img_mean_ = np.mean(ratio_area_to_img)
+                        ratio_area_to_img_median_ = np.median(ratio_area_to_img)
+                        ratio_area_to_img_min_ = min(ratio_area_to_img)
+                        ratio_area_to_img_max_ = max(ratio_area_to_img)
+
+                        var_angle_mean_ = np.mean(var_angle)
+                        var_angle_median_ = np.median(var_angle)
+                        var_angle_min_ = min(var_angle)
+                        var_angle_max_ = max(var_angle)
+
+                        ## append these measurements to the lists
+                        # for whole_stomata
+                        No_wst_mean.append(No_wst_mean_)
+                        No_wst_median.append(No_wst_median_)
+                        No_wst_min.append(No_wst_min_)
+                        No_wst_max.append(No_wst_max_)
+
+                        box_w_wst_mean.append(box_w_wst_mean_)
+                        box_w_wst_median.append(box_w_wst_median_)
+                        box_w_wst_min.append(box_w_wst_min_)
+                        box_w_wst_max.append(box_w_wst_max_)
+
+                        box_h_wst_mean.append(box_h_wst_mean_)
+                        box_h_wst_median.append(box_h_wst_median_)
+                        box_h_wst_min.append(box_h_wst_min_)
+                        box_h_wst_max.append(box_h_wst_max_)
+
+                        area_wst_mean.append(area_wst_mean_)
+                        area_wst_median.append(area_wst_median_)
+                        area_wst_min.append(area_wst_min_)
+                        area_wst_max.append(area_wst_max_)
+
+                        width_wst_mean.append(width_wst_mean_)
+                        width_wst_median.append(width_wst_median_)
+                        width_wst_min.append(width_wst_min_)
+                        width_wst_max.append(width_wst_max_)
+
+                        length_wst_mean.append(length_wst_mean_)
+                        length_wst_median.append(length_wst_median_)
+                        length_wst_min.append(length_wst_min_)
+                        length_wst_max.append(length_wst_max_)
+
+                        var_area_wst_mean.append(var_area_wst_mean_)
+                        var_area_wst_median.append(var_area_wst_median_)
+                        var_area_wst_min.append(var_area_wst_min_)
+                        var_area_wst_max.append(var_area_wst_max_)
+
+                        var_width_wst_mean.append(var_width_wst_mean_)
+                        var_width_wst_median.append(var_width_wst_median_)
+                        var_width_wst_min.append(var_width_wst_min_)
+                        var_width_wst_max.append(var_width_wst_max_)
+
+                        var_length_wst_mean.append(var_length_wst_mean_)
+                        var_length_wst_median.append(var_length_wst_median_)
+                        var_length_wst_min.append(var_length_wst_min_)
+                        var_length_wst_max.append(var_length_wst_max_)    
+
+                        ## for stomata
+                        No_st_mean.append(No_st_mean_)
+                        No_st_median.append(No_st_median_)
+                        No_st_min.append(No_st_min_)
+                        No_st_max.append(No_st_max_)
+
+                        box_w_st_mean.append(box_w_st_mean_)
+                        box_w_st_median.append(box_w_st_median_)
+                        box_w_st_min.append(box_w_st_min_)
+                        box_w_st_max.append(box_w_st_max_)
+
+                        box_h_st_mean.append(box_h_st_mean_)
+                        box_h_st_median.append(box_h_st_median_)
+                        box_h_st_min.append(box_h_st_min_)
+                        box_h_st_max.append(box_h_st_max_)
+
+                        area_st_mean.append(area_st_mean_)
+                        area_st_median.append(area_st_median_)
+                        area_st_min.append(area_st_min_)
+                        area_st_max.append(area_st_max_)
+
+                        width_st_mean.append(width_st_mean_)
+                        width_st_median.append(width_st_median_)
+                        width_st_min.append(width_st_min_)
+                        width_st_max.append(width_st_max_)
+
+                        length_st_mean.append(length_st_mean_)
+                        length_st_median.append(length_st_median_)
+                        length_st_min.append(length_st_min_)
+                        length_st_max.append(length_st_max_)
+
+                        var_area_st_mean.append(var_area_st_mean_)
+                        var_area_st_median.append(var_area_st_median_)
+                        var_area_st_min.append(var_area_st_min_)
+                        var_area_st_max.append(var_area_st_max_)
+
+                        var_width_st_mean.append(var_width_st_mean_)
+                        var_width_st_median.append(var_width_st_median_)
+                        var_width_st_min.append(var_width_st_min_)
+                        var_width_st_max.append(var_width_st_max_)
+
+                        var_length_st_mean.append(var_length_st_mean_)
+                        var_length_st_median.append(var_length_st_median_)
+                        var_length_st_min.append(var_length_st_min_)
+                        var_length_st_max.append(var_length_st_max_)  
+
+                        ## for guard cell
+                        guardCell_length_mean.append(guardCell_length_mean_) 
+                        guardCell_length_median.append(guardCell_length_median_)  
+                        guardCell_length_min.append(guardCell_length_min_)
+                        guardCell_length_max.append(guardCell_length_max_)    
+
+                        guardCell_width_mean.append(guardCell_width_mean_)
+                        guardCell_width_median.append(guardCell_width_median_)
+                        guardCell_width_min.append(guardCell_width_min_)
+                        guardCell_width_max.append(guardCell_width_max_)
+
+                        guardCell_area_mean.append(guardCell_area_mean_)
+                        guardCell_area_median.append(guardCell_area_median_)
+                        guardCell_area_min.append(guardCell_area_min_)
+                        guardCell_area_max.append(guardCell_area_max_)
+
+                        guardCell_angle_mean.append(guardCell_angle_mean_)
+                        guardCell_angle_median.append(guardCell_angle_median_)
+                        guardCell_angle_min.append(guardCell_angle_min_)
+                        guardCell_angle_max.append(guardCell_angle_max_)
+
+                        var_width_guardCell_mean.append(var_width_guardCell_mean_)
+                        var_width_guardCell_median.append(var_width_guardCell_median_)
+                        var_width_guardCell_min.append(var_width_guardCell_min_)
+                        var_width_guardCell_max.append(var_width_guardCell_max_)
+
+                        var_length_guardCell_mean.append(var_length_guardCell_mean_)
+                        var_length_guardCell_median.append(var_length_guardCell_median_)
+                        var_length_guardCell_min.append(var_length_guardCell_min_)
+                        var_length_guardCell_max.append(var_length_guardCell_max_)
+
+                        wst_density_mean.append(wst_density_mean_)
+                        wst_density_median.append(wst_density_median_)
+                        wst_density_min.append(wst_density_min_)
+                        wst_density_max.append(wst_density_max_)
+
+                        ratio_area_st_gc_mean.append(ratio_area_st_gc_mean_)
+                        ratio_area_st_gc_median.append(ratio_area_st_gc_median_)
+                        ratio_area_st_gc_min.append(ratio_area_st_gc_min_)
+                        ratio_area_st_gc_max.append(ratio_area_st_gc_max_)
+
+                        var_angle_mean.append(var_angle_mean_)
+                        var_angle_median.append(var_angle_median_)
+                        var_angle_min.append(var_angle_min_)
+                        var_angle_max.append(var_angle_max_)
+
+                        ratio_area_to_img_mean.append(ratio_area_to_img_mean_)
+                        ratio_area_to_img_median.append(ratio_area_to_img_median_)
+                        ratio_area_to_img_min.append(ratio_area_to_img_min_)
+                        ratio_area_to_img_max.append(ratio_area_to_img_max_)
+                        
+                        self.progressBar.setValue(int((self.img_num / len(glob.glob(output_image_path_ + '/' + '*.csv'))*100)))
+                        QtWidgets.QApplication.processEvents()
+
+                        self.img_num +=1 
+                    else:
+                        self.img_num +=1
+                        pass
+
+
+                # Convert all lists into pd.series
+                Filename = pd.Series(Filename, dtype=pd.StringDtype(), name="Filename")
+                
+                No_wst_mean = pd.Series(No_wst_mean, dtype=pd.Float64Dtype(), name="No_wst_mean").map('{:,.0f}'.format)
+                No_wst_median = pd.Series(No_wst_median, dtype=pd.Float64Dtype(), name="No_wst_median").map('{:,.0f}'.format)
+                No_wst_min = pd.Series(No_wst_min, dtype=pd.Float64Dtype(), name="No_wst_min").map('{:,.0f}'.format)
+                No_wst_max = pd.Series(No_wst_max, dtype=pd.Float64Dtype(), name="No_wst_max").map('{:,.0f}'.format)
+
+                box_w_wst_mean = pd.Series(box_w_wst_mean, dtype=pd.Float64Dtype(), name="box_w_wst_mean").map('{:,.0f}'.format)
+                box_w_wst_median = pd.Series(box_w_wst_median, dtype=pd.Float64Dtype(), name="box_w_wst_median").map('{:,.0f}'.format)
+                box_w_wst_min = pd.Series(box_w_wst_min, dtype=pd.Float64Dtype(), name="box_w_wst_min").map('{:,.0f}'.format)
+                box_w_wst_max = pd.Series(box_w_wst_max, dtype=pd.Float64Dtype(), name="box_w_wst_max").map('{:,.0f}'.format)
+
+                box_h_wst_mean = pd.Series(box_h_wst_mean, dtype=pd.Float64Dtype(), name="box_h_wst_mean").map('{:,.0f}'.format)
+                box_h_wst_median = pd.Series(box_h_wst_median, dtype=pd.Float64Dtype(), name="box_h_wst_median").map('{:,.0f}'.format)
+                box_h_wst_min = pd.Series(box_h_wst_min, dtype=pd.Float64Dtype(), name="box_h_wst_min").map('{:,.0f}'.format)
+                box_h_wst_max = pd.Series(box_h_wst_max, dtype=pd.Float64Dtype(), name="box_h_wst_max").map('{:,.0f}'.format)
+
+                area_wst_mean = pd.Series(area_wst_mean, dtype=pd.Float64Dtype(), name="area_wst_mean").map('{:,.0f}'.format)
+                area_wst_median = pd.Series(area_wst_median, dtype=pd.Float64Dtype(), name="area_wst_median").map('{:,.0f}'.format)
+                area_wst_min = pd.Series(area_wst_min, dtype=pd.Float64Dtype(), name="area_wst_min").map('{:,.0f}'.format)
+                area_wst_max = pd.Series(area_wst_max, dtype=pd.Float64Dtype(), name="area_wst_max").map('{:,.0f}'.format)
+
+                width_wst_mean = pd.Series(width_wst_mean, dtype=pd.Float64Dtype(), name="width_wst_mean").map('{:,.0f}'.format)
+                width_wst_median = pd.Series(width_wst_median, dtype=pd.Float64Dtype(), name="width_wst_median").map('{:,.0f}'.format)
+                width_wst_min = pd.Series(width_wst_min, dtype=pd.Float64Dtype(), name="width_wst_min").map('{:,.0f}'.format)
+                width_wst_max = pd.Series(width_wst_max, dtype=pd.Float64Dtype(), name="width_wst_max").map('{:,.0f}'.format)
+
+                length_wst_mean = pd.Series(length_wst_mean, dtype=pd.Float64Dtype(), name="length_wst_mean").map('{:,.0f}'.format)
+                length_wst_median = pd.Series(length_wst_median, dtype=pd.Float64Dtype(), name="length_wst_median").map('{:,.0f}'.format)
+                length_wst_min = pd.Series(length_wst_min, dtype=pd.Float64Dtype(), name="length_wst_min").map('{:,.0f}'.format)
+                length_wst_max = pd.Series(length_wst_max, dtype=pd.Float64Dtype(), name="length_wst_max").map('{:,.0f}'.format)
+
+                var_area_wst_mean = pd.Series(var_area_wst_mean, dtype=pd.Float64Dtype(), name="var_area_wst_mean").map('{:,.0f}'.format)
+                var_area_wst_median = pd.Series(var_area_wst_median, dtype=pd.Float64Dtype(), name="var_area_wst_median").map('{:,.0f}'.format)
+                var_area_wst_min = pd.Series(var_area_wst_min, dtype=pd.Float64Dtype(), name="var_area_wst_min").map('{:,.0f}'.format)
+                var_area_wst_max = pd.Series(var_area_wst_max, dtype=pd.Float64Dtype(), name="var_area_wst_max").map('{:,.0f}'.format)
+
+                var_width_wst_mean = pd.Series(var_width_wst_mean, dtype=pd.Float64Dtype(), name="var_width_wst_mean").map('{:,.0f}'.format)
+                var_width_wst_median = pd.Series(var_width_wst_median, dtype=pd.Float64Dtype(), name="var_width_wst_median").map('{:,.0f}'.format)
+                var_width_wst_min = pd.Series(var_width_wst_min, dtype=pd.Float64Dtype(), name="var_width_wst_min").map('{:,.0f}'.format)
+                var_width_wst_max = pd.Series(var_width_wst_max, dtype=pd.Float64Dtype(), name="var_width_wst_max").map('{:,.0f}'.format)       
+
+                var_length_wst_mean = pd.Series(var_length_wst_mean, dtype=pd.Float64Dtype(), name="var_length_wst_mean").map('{:,.0f}'.format)
+                var_length_wst_median = pd.Series(var_length_wst_median, dtype=pd.Float64Dtype(), name="var_length_wst_median").map('{:,.0f}'.format)
+                var_length_wst_min = pd.Series(var_length_wst_min, dtype=pd.Float64Dtype(), name="var_length_wst_min").map('{:,.0f}'.format)
+                var_length_wst_max = pd.Series(var_length_wst_max, dtype=pd.Float64Dtype(), name="var_length_wst_max").map('{:,.0f}'.format)   
+
+                No_st_mean = pd.Series(No_st_mean, dtype=pd.Float64Dtype(), name="No_st_mean").map('{:,.0f}'.format)
+                No_st_median = pd.Series(No_st_median, dtype=pd.Float64Dtype(), name="No_st_median").map('{:,.0f}'.format)
+                No_st_min = pd.Series(No_st_min, dtype=pd.Float64Dtype(), name="No_st_min").map('{:,.0f}'.format)
+                No_st_max = pd.Series(No_st_max, dtype=pd.Float64Dtype(), name="No_st_max").map('{:,.0f}'.format)   
+
+                box_w_st_mean = pd.Series(box_w_st_mean, dtype=pd.Float64Dtype(), name="box_w_st_mean").map('{:,.0f}'.format)
+                box_w_st_median = pd.Series(box_w_st_median, dtype=pd.Float64Dtype(), name="box_w_st_median").map('{:,.0f}'.format)
+                box_w_st_min = pd.Series(box_w_st_min, dtype=pd.Float64Dtype(), name="box_w_st_min").map('{:,.0f}'.format)
+                box_w_st_max = pd.Series(box_w_st_max, dtype=pd.Float64Dtype(), name="box_w_st_max").map('{:,.0f}'.format)   
+
+                box_h_st_mean = pd.Series(box_h_st_mean, dtype=pd.Float64Dtype(), name="box_h_st_mean").map('{:,.0f}'.format)
+                box_h_st_median = pd.Series(box_h_st_median, dtype=pd.Float64Dtype(), name="box_h_st_median").map('{:,.0f}'.format)
+                box_h_st_min = pd.Series(box_h_st_min, dtype=pd.Float64Dtype(), name="box_h_st_min").map('{:,.0f}'.format)
+                box_h_st_max = pd.Series(box_h_st_max, dtype=pd.Float64Dtype(), name="box_h_st_max").map('{:,.0f}'.format)   
+
+                area_st_mean = pd.Series(area_st_mean, dtype=pd.Float64Dtype(), name="area_st_mean").map('{:,.0f}'.format)
+                area_st_median = pd.Series(area_st_median, dtype=pd.Float64Dtype(), name="area_st_median").map('{:,.0f}'.format)
+                area_st_min = pd.Series(area_st_min, dtype=pd.Float64Dtype(), name="area_st_min").map('{:,.0f}'.format)
+                area_st_max = pd.Series(area_st_max, dtype=pd.Float64Dtype(), name="area_st_max").map('{:,.0f}'.format)   
+
+                width_st_mean = pd.Series(width_st_mean, dtype=pd.Float64Dtype(), name="width_st_mean").map('{:,.0f}'.format)
+                width_st_median = pd.Series(width_st_median, dtype=pd.Float64Dtype(), name="width_st_median").map('{:,.0f}'.format)
+                width_st_min = pd.Series(width_st_min, dtype=pd.Float64Dtype(), name="width_st_min").map('{:,.0f}'.format)
+                width_st_max = pd.Series(width_st_max, dtype=pd.Float64Dtype(), name="width_st_max").map('{:,.0f}'.format)  
+
+                length_st_mean = pd.Series(length_st_mean, dtype=pd.Float64Dtype(), name="length_st_mean").map('{:,.0f}'.format)
+                length_st_median = pd.Series(length_st_median, dtype=pd.Float64Dtype(), name="length_st_median").map('{:,.0f}'.format)
+                length_st_min = pd.Series(length_st_min, dtype=pd.Float64Dtype(), name="length_st_min").map('{:,.0f}'.format)
+                length_st_max = pd.Series(length_st_max, dtype=pd.Float64Dtype(), name="length_st_max").map('{:,.0f}'.format)   
+
+                var_area_st_mean = pd.Series(var_area_st_mean, dtype=pd.Float64Dtype(), name="var_area_st_mean").map('{:,.0f}'.format)
+                var_area_st_median = pd.Series(var_area_st_median, dtype=pd.Float64Dtype(), name="var_area_st_median").map('{:,.0f}'.format)
+                var_area_st_min = pd.Series(var_area_st_min, dtype=pd.Float64Dtype(), name="var_area_st_min").map('{:,.0f}'.format)
+                var_area_st_max = pd.Series(var_area_st_max, dtype=pd.Float64Dtype(), name="var_area_st_max").map('{:,.0f}'.format)   
+
+                var_width_st_mean = pd.Series(var_width_st_mean, dtype=pd.Float64Dtype(), name="var_width_st_mean").map('{:,.0f}'.format)
+                var_width_st_median = pd.Series(var_width_st_median, dtype=pd.Float64Dtype(), name="var_width_st_median").map('{:,.0f}'.format)
+                var_width_st_min = pd.Series(var_width_st_min, dtype=pd.Float64Dtype(), name="var_width_st_min").map('{:,.0f}'.format)
+                var_width_st_max = pd.Series(var_width_st_max, dtype=pd.Float64Dtype(), name="var_width_st_max").map('{:,.0f}'.format)   
+
+                var_length_st_mean = pd.Series(var_length_st_mean, dtype=pd.Float64Dtype(), name="var_length_st_mean").map('{:,.0f}'.format)
+                var_length_st_median = pd.Series(var_length_st_median, dtype=pd.Float64Dtype(), name="var_length_st_median").map('{:,.0f}'.format)
+                var_length_st_min = pd.Series(var_length_st_min, dtype=pd.Float64Dtype(), name="var_length_st_min").map('{:,.0f}'.format)
+                var_length_st_max = pd.Series(var_length_st_max, dtype=pd.Float64Dtype(), name="var_length_st_max").map('{:,.0f}'.format)   
+
+                guardCell_length_mean = pd.Series(guardCell_length_mean, dtype=pd.Float64Dtype(), name="guardCell_length_mean").map('{:,.0f}'.format)
+                guardCell_length_median = pd.Series(guardCell_length_median, dtype=pd.Float64Dtype(), name="guardCell_length_median").map('{:,.0f}'.format)
+                guardCell_length_min = pd.Series(guardCell_length_min, dtype=pd.Float64Dtype(), name="guardCell_length_min").map('{:,.0f}'.format)
+                guardCell_length_max = pd.Series(guardCell_length_max, dtype=pd.Float64Dtype(), name="guardCell_length_max").map('{:,.0f}'.format)   
+
+                guardCell_width_mean = pd.Series(guardCell_width_mean, dtype=pd.Float64Dtype(), name="guardCell_width_mean").map('{:,.0f}'.format)
+                guardCell_width_median = pd.Series(guardCell_width_median, dtype=pd.Float64Dtype(), name="guardCell_width_median").map('{:,.0f}'.format)
+                guardCell_width_min = pd.Series(guardCell_width_min, dtype=pd.Float64Dtype(), name="guardCell_width_min").map('{:,.0f}'.format)
+                guardCell_width_max = pd.Series(guardCell_width_max, dtype=pd.Float64Dtype(), name="guardCell_width_max").map('{:,.0f}'.format)  
+
+                guardCell_area_mean = pd.Series(guardCell_area_mean, dtype=pd.Float64Dtype(), name="guardCell_area_mean").map('{:,.0f}'.format)
+                guardCell_area_median = pd.Series(guardCell_area_median, dtype=pd.Float64Dtype(), name="guardCell_area_median").map('{:,.0f}'.format)
+                guardCell_area_min = pd.Series(guardCell_area_min, dtype=pd.Float64Dtype(), name="guardCell_area_min").map('{:,.0f}'.format)
+                guardCell_area_max = pd.Series(guardCell_area_max, dtype=pd.Float64Dtype(), name="guardCell_area_max").map('{:,.0f}'.format) 
+
+                guardCell_angle_mean = pd.Series(guardCell_angle_mean, dtype=pd.Float64Dtype(), name="guardCell_angle_mean").map('{:,.0f}'.format)
+                guardCell_angle_median = pd.Series(guardCell_angle_median, dtype=pd.Float64Dtype(), name="guardCell_angle_median").map('{:,.0f}'.format)
+                guardCell_angle_min = pd.Series(guardCell_angle_min, dtype=pd.Float64Dtype(), name="guardCell_angle_min").map('{:,.0f}'.format)
+                guardCell_angle_max = pd.Series(guardCell_angle_max, dtype=pd.Float64Dtype(), name="guardCell_angle_max").map('{:,.0f}'.format)  
+
+                var_width_guardCell_mean = pd.Series(var_width_guardCell_mean, dtype=pd.Float64Dtype(), name="var_width_guardCell_mean").map('{:,.0f}'.format)
+                var_width_guardCell_median = pd.Series(var_width_guardCell_median, dtype=pd.Float64Dtype(), name="var_width_guardCell_median").map('{:,.0f}'.format)
+                var_width_guardCell_min = pd.Series(var_width_guardCell_min, dtype=pd.Float64Dtype(), name="var_width_guardCell_min").map('{:,.0f}'.format)
+                var_width_guardCell_max = pd.Series(var_width_guardCell_max, dtype=pd.Float64Dtype(), name="var_width_guardCell_max").map('{:,.0f}'.format)  
+
+                var_length_guardCell_mean = pd.Series(var_length_guardCell_mean, dtype=pd.Float64Dtype(), name="var_length_guardCell_mean").map('{:,.0f}'.format)
+                var_length_guardCell_median = pd.Series(var_length_guardCell_median, dtype=pd.Float64Dtype(), name="var_length_guardCell_median").map('{:,.0f}'.format)
+                var_length_guardCell_min = pd.Series(var_length_guardCell_min, dtype=pd.Float64Dtype(), name="var_length_guardCell_min").map('{:,.0f}'.format)
+                var_length_guardCell_max = pd.Series(var_length_guardCell_max, dtype=pd.Float64Dtype(), name="var_length_guardCell_max").map('{:,.0f}'.format)  
+
+                wst_density_mean = pd.Series(wst_density_mean, dtype=pd.Float64Dtype(), name="wst_density_mean").map('{:,.0f}'.format)
+                wst_density_median = pd.Series(wst_density_median, dtype=pd.Float64Dtype(), name="wst_density_median").map('{:,.0f}'.format)
+                wst_density_min = pd.Series(wst_density_min, dtype=pd.Float64Dtype(), name="wst_density_min").map('{:,.0f}'.format)
+                wst_density_max = pd.Series(wst_density_max, dtype=pd.Float64Dtype(), name="wst_density_max").map('{:,.0f}'.format)  
+
+                ratio_area_st_gc_mean = pd.Series(ratio_area_st_gc_mean, dtype=pd.Float64Dtype(), name="ratio_area_st_gc_mean").map('{:,.3f}'.format)
+                ratio_area_st_gc_median = pd.Series(ratio_area_st_gc_median, dtype=pd.Float64Dtype(), name="ratio_area_st_gc_median").map('{:,.3f}'.format)
+                ratio_area_st_gc_min = pd.Series(ratio_area_st_gc_min, dtype=pd.Float64Dtype(), name="ratio_area_st_gc_min").map('{:,.3f}'.format)
+                ratio_area_st_gc_max = pd.Series(ratio_area_st_gc_max, dtype=pd.Float64Dtype(), name="ratio_area_st_gc_max").map('{:,.3f}'.format) 
+
+                ratio_area_to_img_mean = pd.Series(ratio_area_to_img_mean, dtype=pd.Float64Dtype(), name="ratio_area_to_img_mean").map('{:,.3f}'.format)
+                ratio_area_to_img_median = pd.Series(ratio_area_to_img_median, dtype=pd.Float64Dtype(), name="ratio_area_to_img_median").map('{:,.3f}'.format)
+                ratio_area_to_img_min = pd.Series(ratio_area_to_img_min, dtype=pd.Float64Dtype(), name="ratio_area_to_img_min").map('{:,.3f}'.format)
+                ratio_area_to_img_max = pd.Series(ratio_area_to_img_max, dtype=pd.Float64Dtype(), name="ratio_area_to_img_max").map('{:,.3f}'.format) 
+
+                var_angle_mean = pd.Series(var_angle_mean, dtype=pd.Float64Dtype(), name="var_angle_mean").map('{:,.0f}'.format)
+                var_angle_median = pd.Series(var_angle_median, dtype=pd.Float64Dtype(), name="var_angle_median").map('{:,.0f}'.format)
+                var_angle_min = pd.Series(var_angle_min, dtype=pd.Float64Dtype(), name="var_angle_min").map('{:,.0f}'.format)
+                var_angle_max = pd.Series(var_angle_max, dtype=pd.Float64Dtype(), name="var_angle_max").map('{:,.0f}'.format)  
+
+                # Put all extracted parameters into a data frame
+                Output_data = pd.concat(
+                    [Filename, 
+                    No_wst_mean, 
+                    No_wst_median,
+                    No_wst_min, 
+                    No_wst_max, 
+                    box_w_wst_mean, 
+                    box_w_wst_median,
+                    box_w_wst_min, 
+                    box_w_wst_max, 
+                    box_h_wst_mean, 
+                    box_h_wst_median, 
+                    box_h_wst_min,
+                    box_h_wst_max,
+                    area_wst_mean,
+                    area_wst_median,
+                    area_wst_min,
+                    area_wst_max,
+                    width_wst_mean,
+                    width_wst_median,
+                    width_wst_min,
+                    width_wst_max,
+                    length_wst_mean,
+                    length_wst_median,
+                    length_wst_min,
+                    length_wst_max,
+                    var_area_wst_mean,
+                    var_area_wst_median,
+                    var_area_wst_min,
+                    var_area_wst_max,
+                    var_width_wst_mean,
+                    var_width_wst_median,
+                    var_width_wst_min,
+                    var_width_wst_max,
+                    var_length_wst_mean,
+                    var_length_wst_median,
+                    var_length_wst_min,
+                    var_length_wst_max,
+                    No_st_mean,
+                    No_st_median,
+                    No_st_min,
+                    No_st_max,
+                    box_w_st_mean,
+                    box_w_st_median,
+                    box_w_st_min,
+                    box_w_st_max,
+                    box_h_st_mean,
+                    box_h_st_median,
+                    box_h_st_min,
+                    box_h_st_max,
+                    area_st_mean,
+                    area_st_median,
+                    area_st_min,
+                    area_st_max,
+                    width_st_mean,
+                    width_st_median,
+                    width_st_min,
+                    width_st_max,
+                    length_st_mean,
+                    length_st_median,
+                    length_st_min,
+                    length_st_max,
+                    var_area_st_mean,
+                    var_area_st_median,
+                    var_area_st_min,
+                    var_area_st_max,
+                    var_width_st_mean,
+                    var_width_st_median,
+                    var_width_st_min,
+                    var_width_st_max,
+                    var_length_st_mean,
+                    var_length_st_median,
+                    var_length_st_min,
+                    var_length_st_max,
+                    guardCell_length_mean,
+                    guardCell_length_median,
+                    guardCell_length_min,
+                    guardCell_length_max,
+                    guardCell_width_mean,
+                    guardCell_width_median,
+                    guardCell_width_min,
+                    guardCell_width_max,
+                    guardCell_area_mean,
+                    guardCell_area_median,
+                    guardCell_area_min,
+                    guardCell_area_max,
+                    guardCell_angle_mean,
+                    guardCell_angle_median,
+                    guardCell_angle_min,
+                    guardCell_angle_max,
+                    var_width_guardCell_mean,
+                    var_width_guardCell_median,
+                    var_width_guardCell_min,
+                    var_width_guardCell_max,
+                    var_length_guardCell_mean,
+                    var_length_guardCell_median,
+                    var_length_guardCell_min,
+                    var_length_guardCell_max,
+                    wst_density_mean,
+                    wst_density_median,
+                    wst_density_min,
+                    wst_density_max,
+                    ratio_area_st_gc_mean,
+                    ratio_area_st_gc_median,
+                    ratio_area_st_gc_min,
+                    ratio_area_st_gc_max,
+                    ratio_area_to_img_mean,
+                    ratio_area_to_img_median,
+                    ratio_area_to_img_min,
+                    ratio_area_to_img_max,
+                    var_angle_mean,
+                    var_angle_median,
+                    var_angle_min,
+                    var_angle_max], 
+                    axis=1)
+                
+                Output_data = pd.DataFrame(data=Output_data)
+                random_str = ''.join(random.choices(string.ascii_uppercase, k=4))
+                Output_data.to_excel(output_image_path_ + "/" + "Stomata_output"+ "_" + random_str +".xlsx")
+                self.show_info_messagebox_group_analysis()
 
         else:
             self.show_info_messagebox_group_analysis_2()
