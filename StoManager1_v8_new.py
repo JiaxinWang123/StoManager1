@@ -1647,12 +1647,12 @@ class Ui_StoManager1(object):
                                         stomata_centroid[1] - whole_stomata_centroid[1])<=30 and length_1>length_0 and area_1-area_0>0 and width_1-width_0>0: 
                                 # find the stomata within the whole_stomata and link them together
                                 guard_cell_area_ = area_1-area_0
-                                guard_cell_length_ = length_1
-                                aperture_width_ = width_0
-                                box_w_ = box_w
-                                box_h_ = box_h
+                                guard_cell_length_ = length_1*self.p/100
+                                aperture_width_ = width_0*self.p/100
+                                box_w_ = box_w*self.p/100
+                                box_h_ = box_h*self.p/100
                                 
-                                guard_cell_width_ = 0.5*(width_1-width_0)
+                                guard_cell_width_ = 0.5*((width_1-width_0)*self.p/100)
                                 guard_cell_width.append(guard_cell_width_)
                                 guard_cell_length.append(guard_cell_length_)
                                 guard_cell_area.append(guard_cell_area_)
@@ -1662,10 +1662,10 @@ class Ui_StoManager1(object):
                                 box_h_all.append(box_h_)
                                 area_wst.append(area_1)
                                 area_st.append(area_0)
-                                width_wst.append(width_1)
-                                width_st.append(width_0)
-                                length_wst.append(length_1)
-                                length_st.append(length_0)                       
+                                width_wst.append(width_1*self.p/100)
+                                width_st.append(width_0*self.p/100)
+                                length_wst.append(length_1*self.p/100)
+                                length_st.append(length_0*self.p/100)                       
 
                                 var_area_wst = int(np.var(area_wst))
                                 var_area_st = int(np.var(area_st))
@@ -1676,6 +1676,7 @@ class Ui_StoManager1(object):
                                 var_length_st = int(np.var(length_st))
                                 var_width_guardCell = int(np.var(guard_cell_width))
                                 var_length_guardCell = int(np.var(guard_cell_length))
+                                var_area_guardCell = int(np.var(guard_cell_area))
 
 
                                 number_st = results[0].boxes.cls.tolist().count(0.0)
@@ -1693,7 +1694,7 @@ class Ui_StoManager1(object):
                                                     area_1, width_1, length_1 ,var_area_wst,var_width_wst,var_length_wst, whole_stomata_centroid, class_0, number_st, 
                                                     k, box_w_0, box_h_0, area_0, width_0, 
                                                     length_0, var_area_st,var_width_st,var_length_st,stomata_centroid, guard_cell_length_,
-                                                    guard_cell_width_, guard_cell_area_, angle_0, var_angle,var_width_guardCell, var_length_guardCell, wst_density,ratio_area_st_gc, ratio_area_to_img])
+                                                    guard_cell_width_, guard_cell_area_, angle_0, var_angle,var_width_guardCell, var_length_guardCell,var_area_guardCell, wst_density,ratio_area_st_gc, ratio_area_to_img])
                                 k+=1
                             else:
                                 pass
@@ -1706,7 +1707,7 @@ class Ui_StoManager1(object):
                                                     'index_st', 'box_w_st', 'box_h_st', 'area_st', 'width_st', 
                                                     'length_st', 'var_area_st','var_width_st','var_length_st','centroid_st','guardCell_length',
                                                     'guardCell_width', 'guardCell_area', 'guardCell_angle', 'var_angle','var_width_guardCell', 
-                                                    'var_length_guardCell', 'wst_density','ratio_area_st_gc','ratio_area_to_img'])
+                                                    'var_length_guardCell', 'var_area_guardCell', 'wst_density','ratio_area_st_gc','ratio_area_to_img'])
 
                     df.to_csv(os.path.join(str(new_path), f""+ filename_without_ext +".csv"),index=False)
 
@@ -1851,6 +1852,11 @@ class Ui_StoManager1(object):
             var_length_guardCell_min = []
             var_length_guardCell_max = []
 
+            var_area_guardCell_mean = []
+            var_area_guardCell_median = []
+            var_area_guardCell_min = []
+            var_area_guardCell_max = []
+
             wst_density_mean = []
             wst_density_median = []
             wst_density_min = []
@@ -1915,6 +1921,7 @@ class Ui_StoManager1(object):
                         var_angle = single_csv_file["var_angle"]
                         var_width_guardCell = single_csv_file["var_width_guardCell"]
                         var_length_guardCell = single_csv_file["var_length_guardCell"]
+                        var_area_guardCell = single_csv_file["var_area_guardCell"]                        
                         wst_density = single_csv_file["wst_density"]
                         ratio_area_st_gc = single_csv_file["ratio_area_st_gc"]
                         ratio_area_to_img = single_csv_file["ratio_area_to_img"]
@@ -2070,7 +2077,9 @@ class Ui_StoManager1(object):
                         # lower = np.where(var_length_st <= (Q1_var_length_st-1.5*IQR_var_length_st))
                         # var_length_st.drop(upper[0], inplace = True)
                         # var_length_st.drop(lower[0], inplace = True) 
-                        var_length_st = var_length_st[-1:]                
+                        var_length_st = var_length_st[-1:] 
+
+                        var_area_guardCell = var_area_guardCell[-1:]                                       
 
                         # Remove the outliers before calculating guardCell_length variance
                         Q1_guardCell_length = np.percentile(guardCell_length, 2.5, method = 'midpoint')
@@ -2266,6 +2275,11 @@ class Ui_StoManager1(object):
                         var_length_guardCell_min_ = min(var_length_guardCell)
                         var_length_guardCell_max_ = max(var_length_guardCell)
 
+                        var_area_guardCell_mean_ = np.mean(var_area_guardCell)
+                        var_area_guardCell_median_ = np.median(var_area_guardCell)
+                        var_area_guardCell_min_ = min(var_area_guardCell)
+                        var_area_guardCell_max_ = max(var_area_guardCell)                          
+
                         wst_density_mean_ = np.mean(wst_density)
                         wst_density_median_ = np.median(wst_density)
                         wst_density_min_ = min(wst_density)
@@ -2409,6 +2423,11 @@ class Ui_StoManager1(object):
                         var_length_guardCell_median.append(var_length_guardCell_median_)
                         var_length_guardCell_min.append(var_length_guardCell_min_)
                         var_length_guardCell_max.append(var_length_guardCell_max_)
+
+                        var_area_guardCell_mean.append(var_area_guardCell_mean_)
+                        var_area_guardCell_median.append(var_area_guardCell_median_)
+                        var_area_guardCell_min.append(var_area_guardCell_min_)
+                        var_area_guardCell_max.append(var_area_guardCell_max_)                        
 
                         wst_density_mean.append(wst_density_mean_)
                         wst_density_median.append(wst_density_median_)
@@ -2562,6 +2581,11 @@ class Ui_StoManager1(object):
                 var_length_guardCell_min = pd.Series(var_length_guardCell_min, dtype=pd.Float64Dtype(), name="var_length_guardCell_min").map('{:,.0f}'.format)
                 var_length_guardCell_max = pd.Series(var_length_guardCell_max, dtype=pd.Float64Dtype(), name="var_length_guardCell_max").map('{:,.0f}'.format)  
 
+                var_area_guardCell_mean = pd.Series(var_area_guardCell_mean, dtype=pd.Float64Dtype(), name="var_area_guardCell_mean").map('{:,.0f}'.format)
+                var_area_guardCell_median = pd.Series(var_area_guardCell_median, dtype=pd.Float64Dtype(), name="var_area_guardCell_median").map('{:,.0f}'.format)
+                var_area_guardCell_min = pd.Series(var_area_guardCell_min, dtype=pd.Float64Dtype(), name="var_area_guardCell_min").map('{:,.0f}'.format)
+                var_area_guardCell_max = pd.Series(var_area_guardCell_max, dtype=pd.Float64Dtype(), name="var_area_guardCell_max").map('{:,.0f}'.format)                 
+
                 wst_density_mean = pd.Series(wst_density_mean, dtype=pd.Float64Dtype(), name="wst_density_mean").map('{:,.0f}'.format)
                 wst_density_median = pd.Series(wst_density_median, dtype=pd.Float64Dtype(), name="wst_density_median").map('{:,.0f}'.format)
                 wst_density_min = pd.Series(wst_density_min, dtype=pd.Float64Dtype(), name="wst_density_min").map('{:,.0f}'.format)
@@ -2681,6 +2705,10 @@ class Ui_StoManager1(object):
                     var_length_guardCell_median,
                     var_length_guardCell_min,
                     var_length_guardCell_max,
+                    var_area_guardCell_mean,
+                    var_area_guardCell_median,
+                    var_area_guardCell_min,
+                    var_area_guardCell_max,
                     wst_density_mean,
                     wst_density_median,
                     wst_density_min,
