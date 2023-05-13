@@ -25,6 +25,8 @@ import torch
 import os, shutil
 import glob
 import openpyxl
+from scipy.spatial import distance, distance_matrix
+from scipy.sparse.csgraph import minimum_spanning_tree
 ########################
 
 #### Main Window ####
@@ -1094,7 +1096,7 @@ class Ui_StoManager1(object):
                         if label == "whole_stomata":
                             number_of_whole_stomata.append(class_ids[i])
                             list_of_all_stomata_areas.append(
-                                (w * h) * 0.6878 + 806)  ## Build linear regression model for adjusted area of whole_stomata
+                                ((w * h) * 0.6878 + 806)*(10000/(pixle*pixle)))  ## Build linear regression model for adjusted area of whole_stomata
                             list_of_whole_stomatal_area.append(((w * h) * 0.6878 + 806)*(10000/(pixle*pixle)))
                         elif label == "stomata":  ## Build linear regression model for adjusted area of stomata
                             number_of_stomata.append(class_ids[i])
@@ -1237,8 +1239,8 @@ class Ui_StoManager1(object):
                             # calculate the median, mean, variance of each leaf stomata number, stomata area
 
                             Whole_stomata_areas_median = np.median(Whole_stomata_areas)
-                            Whole_stomata_areas_max = np.max(Whole_stomata_areas)
-                            Whole_stomata_areas_min = np.min(Whole_stomata_areas)
+                            Whole_stomata_areas_max = max(Whole_stomata_areas)
+                            Whole_stomata_areas_min = min(Whole_stomata_areas)
                             Whole_stomata_areas_mean = np.mean(Whole_stomata_areas)
                             Whole_stomata_areas_var = np.var(Whole_stomata_areas)
                             Whole_stomata_areas_std = np.std(Whole_stomata_areas)
@@ -1357,8 +1359,8 @@ class Ui_StoManager1(object):
                         # calculate the median, mean, variance of each leaf stomata number, stomata area
 
                         Whole_stomata_areas_median = np.median(Whole_stomata_areas)
-                        Whole_stomata_areas_max = np.max(Whole_stomata_areas)
-                        Whole_stomata_areas_min = np.min(Whole_stomata_areas)
+                        Whole_stomata_areas_max = max(Whole_stomata_areas)
+                        Whole_stomata_areas_min = min(Whole_stomata_areas)
                         Whole_stomata_areas_mean = np.mean(Whole_stomata_areas)
                         Whole_stomata_areas_var = np.var(Whole_stomata_areas)
                         Whole_stomata_areas_std = np.std(Whole_stomata_areas)
@@ -1618,6 +1620,27 @@ class Ui_StoManager1(object):
                     length_st = []            
 
                     j=0
+
+                    # The following codes are used to calculate stomatal indices such as stomata_evenness, sum_deviance, stomata_aggregation
+                    whole_stomata_centroid_all = res_whole_stomata[4]
+                    stomata_num = (np.array(whole_stomata_centroid_all).shape[0])
+                    dist_matrix = distance_matrix(whole_stomata_centroid_all, whole_stomata_centroid_all)
+                    mst = minimum_spanning_tree(dist_matrix).toarray()
+                    PD = np.sum(mst, axis=1) / np.sum(mst)
+                    constant = 1 / (stomata_num - 1)
+                    stomata_evenness = (np.sum(PD[PD < constant]) + (stomata_num - 1 - len(PD[PD < constant])) * constant - constant) / (1 - constant)                    
+                    distance_to_gravity = np.array([distance.euclidean(whole_stomata_centroid_all[i], np.mean(whole_stomata_centroid_all, axis=0)) for i in range(stomata_num)])
+                    mean_distance = np.mean(distance_to_gravity)                    
+                    sum_deviance = np.sum(distance_to_gravity - mean_distance)
+                    sum_abs_deviance = np.sum(np.abs(distance_to_gravity - mean_distance))                    
+                    stomata_divergence = (sum_deviance + mean_distance) / (sum_abs_deviance + mean_distance)                    
+                    stomatal_density = stomata_num / (ori_img_shape[0]*ori_img_shape[1]) # this is based on pixel level
+                    theoretical_distance = 1 / (2 * (stomatal_density ** 0.5)) 
+                    nearest_neighbor_distance = np.array([np.sort(dist_matrix[i])[1] for i in range(stomata_num)])
+                    observed_distance = np.sum(nearest_neighbor_distance) / stomata_num
+                    stomata_aggregation = observed_distance / theoretical_distance
+
+
                     for j in range(len(res_whole_stomata[0])): # Build a for loop to match stomata with whole_stomata to calculate guard cell width, length, and area
                         
                         class_1 = res_whole_stomata[0][j]
@@ -1630,6 +1653,7 @@ class Ui_StoManager1(object):
                         width_1 = res_whole_stomata[6][j]
                         angle_1 = res_whole_stomata[7][j]
                         k = 0
+
                         for k in range(len(res_stomata[0])):
                             
                             class_0 = res_stomata[0][k]
@@ -1647,12 +1671,12 @@ class Ui_StoManager1(object):
                                         stomata_centroid[1] - whole_stomata_centroid[1])<=30 and length_1>length_0 and area_1-area_0>0 and width_1-width_0>0: 
                                 # find the stomata within the whole_stomata and link them together
                                 guard_cell_area_ = area_1-area_0
-                                guard_cell_length_ = length_1*self.p/100
-                                aperture_width_ = width_0*self.p/100
-                                box_w_ = box_w*self.p/100
-                                box_h_ = box_h*self.p/100
+                                guard_cell_length_ = length_1/(self.p/100)
+                                aperture_width_ = width_0/(self.p/100)
+                                box_w_ = box_w/(self.p/100)
+                                box_h_ = box_h/(self.p/100)
                                 
-                                guard_cell_width_ = 0.5*((width_1-width_0)*self.p/100)
+                                guard_cell_width_ = 0.5*((width_1-width_0)/(self.p/100))
                                 guard_cell_width.append(guard_cell_width_)
                                 guard_cell_length.append(guard_cell_length_)
                                 guard_cell_area.append(guard_cell_area_)
@@ -1662,10 +1686,10 @@ class Ui_StoManager1(object):
                                 box_h_all.append(box_h_)
                                 area_wst.append(area_1)
                                 area_st.append(area_0)
-                                width_wst.append(width_1*self.p/100)
-                                width_st.append(width_0*self.p/100)
-                                length_wst.append(length_1*self.p/100)
-                                length_st.append(length_0*self.p/100)                       
+                                width_wst.append(width_1/(self.p/100))
+                                width_st.append(width_0/(self.p/100))
+                                length_wst.append(length_1/(self.p/100))
+                                length_st.append(length_0/(self.p/100))                       
 
                                 var_area_wst = int(np.var(area_wst))
                                 var_area_st = int(np.var(area_st))
@@ -1690,11 +1714,12 @@ class Ui_StoManager1(object):
 
                                 ratio_area_to_img = float("{:.3f}".format(sum((area/(10000/(self.p*self.p))) for area in area_wst) / img_area)) 
 
-                                link_st_wst.append([ori_img_shape, class_1, number_wst, j, box_w_1, box_h_1, 
-                                                    area_1, width_1, length_1 ,var_area_wst,var_width_wst,var_length_wst, whole_stomata_centroid, class_0, number_st, 
-                                                    k, box_w_0, box_h_0, area_0, width_0, 
-                                                    length_0, var_area_st,var_width_st,var_length_st,stomata_centroid, guard_cell_length_,
-                                                    guard_cell_width_, guard_cell_area_, angle_0, var_angle,var_width_guardCell, var_length_guardCell,var_area_guardCell, wst_density,ratio_area_st_gc, ratio_area_to_img])
+                                link_st_wst.append([ori_img_shape, class_1, number_wst, j, int(box_w_1), int(box_h_1), 
+                                                    area_1, int(width_1/(self.p/100)), int(length_1/(self.p/100)) ,var_area_wst,var_width_wst,var_length_wst, whole_stomata_centroid, class_0, number_st, 
+                                                    k, int(box_w_0), int(box_h_0), area_0, int(width_0/(self.p/100)), 
+                                                    int(length_0/(self.p/100)), var_area_st,var_width_st,var_length_st,stomata_centroid, guard_cell_length_,
+                                                    guard_cell_width_, guard_cell_area_, angle_0, var_angle,var_width_guardCell, var_length_guardCell,var_area_guardCell, wst_density,ratio_area_st_gc, ratio_area_to_img,
+                                                    float("{:.4f}".format(stomata_evenness)), float("{:.4f}".format(stomata_divergence)), float("{:.4f}".format(stomata_aggregation))])
                                 k+=1
                             else:
                                 pass
@@ -1707,7 +1732,8 @@ class Ui_StoManager1(object):
                                                     'index_st', 'box_w_st', 'box_h_st', 'area_st', 'width_st', 
                                                     'length_st', 'var_area_st','var_width_st','var_length_st','centroid_st','guardCell_length',
                                                     'guardCell_width', 'guardCell_area', 'guardCell_angle', 'var_angle','var_width_guardCell', 
-                                                    'var_length_guardCell', 'var_area_guardCell', 'wst_density','ratio_area_st_gc','ratio_area_to_img'])
+                                                    'var_length_guardCell', 'var_area_guardCell', 'wst_density','ratio_area_st_to_gc','ratio_area_to_img', 
+                                                    'SEve', 'SDiv', 'SAgg'])
 
                     df.to_csv(os.path.join(str(new_path), f""+ filename_without_ext +".csv"),index=False)
 
@@ -1877,6 +1903,21 @@ class Ui_StoManager1(object):
             var_angle_min = []
             var_angle_max = []
 
+            SEve_mean = []
+            SEve_median = []
+            SEve_min = []
+            SEve_max = []            
+
+            SDiv_mean = []
+            SDiv_median = []
+            SDiv_min = []
+            SDiv_max = []     
+
+            SAgg_mean = []
+            SAgg_median = []
+            SAgg_min = []
+            SAgg_max = []  
+
             Filename = []
 
             # Using for loop to go through all csv files
@@ -1923,8 +1964,12 @@ class Ui_StoManager1(object):
                         var_length_guardCell = single_csv_file["var_length_guardCell"]
                         var_area_guardCell = single_csv_file["var_area_guardCell"]                        
                         wst_density = single_csv_file["wst_density"]
-                        ratio_area_st_gc = single_csv_file["ratio_area_st_gc"]
+                        ratio_area_st_gc = single_csv_file["ratio_area_st_to_gc"]
                         ratio_area_to_img = single_csv_file["ratio_area_to_img"]
+
+                        SEve = single_csv_file["SEve"]
+                        SDiv = single_csv_file["SDiv"]
+                        SAgg = single_csv_file["SAgg"]
 
                         # print(type(box_w_wst))
 
@@ -2300,6 +2345,21 @@ class Ui_StoManager1(object):
                         var_angle_min_ = min(var_angle)
                         var_angle_max_ = max(var_angle)
 
+                        SEve_mean_ = np.mean(SEve)
+                        SEve_median_ = np.median(SEve)
+                        SEve_min_ = min(SEve)
+                        SEve_max_ = max(SEve)
+
+                        SDiv_mean_ = np.mean(SDiv)
+                        SDiv_median_ = np.median(SDiv)
+                        SDiv_min_ = min(SDiv)
+                        SDiv_max_ = max(SDiv)
+
+                        SAgg_mean_ = np.mean(SAgg)
+                        SAgg_median_ = np.median(SAgg)
+                        SAgg_min_ = min(SAgg)
+                        SAgg_max_ = max(SAgg)
+
                         ## append these measurements to the lists
                         # for whole_stomata
                         No_wst_mean.append(No_wst_mean_)
@@ -2448,6 +2508,21 @@ class Ui_StoManager1(object):
                         ratio_area_to_img_median.append(ratio_area_to_img_median_)
                         ratio_area_to_img_min.append(ratio_area_to_img_min_)
                         ratio_area_to_img_max.append(ratio_area_to_img_max_)
+
+                        SEve_mean.append(SEve_mean_)
+                        SEve_median.append(SEve_median_)
+                        SEve_min.append(SEve_min_)
+                        SEve_max.append(SEve_max_)
+
+                        SDiv_mean.append(SDiv_mean_)
+                        SDiv_median.append(SDiv_median_)
+                        SDiv_min.append(SDiv_min_)
+                        SDiv_max.append(SDiv_max_)
+
+                        SAgg_mean.append(SAgg_mean_)
+                        SAgg_median.append(SAgg_median_)
+                        SAgg_min.append(SAgg_min_)
+                        SAgg_max.append(SAgg_max_)
                         
                         self.progressBar.setValue(int((self.img_num / len(glob.glob(output_image_path_ + '/' + '*.csv'))*100)))
                         QtWidgets.QApplication.processEvents()
@@ -2591,10 +2666,10 @@ class Ui_StoManager1(object):
                 wst_density_min = pd.Series(wst_density_min, dtype=pd.Float64Dtype(), name="wst_density_min").map('{:,.0f}'.format)
                 wst_density_max = pd.Series(wst_density_max, dtype=pd.Float64Dtype(), name="wst_density_max").map('{:,.0f}'.format)  
 
-                ratio_area_st_gc_mean = pd.Series(ratio_area_st_gc_mean, dtype=pd.Float64Dtype(), name="ratio_area_st_gc_mean").map('{:,.3f}'.format)
-                ratio_area_st_gc_median = pd.Series(ratio_area_st_gc_median, dtype=pd.Float64Dtype(), name="ratio_area_st_gc_median").map('{:,.3f}'.format)
-                ratio_area_st_gc_min = pd.Series(ratio_area_st_gc_min, dtype=pd.Float64Dtype(), name="ratio_area_st_gc_min").map('{:,.3f}'.format)
-                ratio_area_st_gc_max = pd.Series(ratio_area_st_gc_max, dtype=pd.Float64Dtype(), name="ratio_area_st_gc_max").map('{:,.3f}'.format) 
+                ratio_area_st_gc_mean = pd.Series(ratio_area_st_gc_mean, dtype=pd.Float64Dtype(), name="ratio_area_st_to_gc_mean").map('{:,.3f}'.format)
+                ratio_area_st_gc_median = pd.Series(ratio_area_st_gc_median, dtype=pd.Float64Dtype(), name="ratio_area_st_to_gc_median").map('{:,.3f}'.format)
+                ratio_area_st_gc_min = pd.Series(ratio_area_st_gc_min, dtype=pd.Float64Dtype(), name="ratio_area_st_to_gc_min").map('{:,.3f}'.format)
+                ratio_area_st_gc_max = pd.Series(ratio_area_st_gc_max, dtype=pd.Float64Dtype(), name="ratio_area_st_to_gc_max").map('{:,.3f}'.format) 
 
                 ratio_area_to_img_mean = pd.Series(ratio_area_to_img_mean, dtype=pd.Float64Dtype(), name="ratio_area_to_img_mean").map('{:,.3f}'.format)
                 ratio_area_to_img_median = pd.Series(ratio_area_to_img_median, dtype=pd.Float64Dtype(), name="ratio_area_to_img_median").map('{:,.3f}'.format)
@@ -2605,6 +2680,21 @@ class Ui_StoManager1(object):
                 var_angle_median = pd.Series(var_angle_median, dtype=pd.Float64Dtype(), name="var_angle_median").map('{:,.0f}'.format)
                 var_angle_min = pd.Series(var_angle_min, dtype=pd.Float64Dtype(), name="var_angle_min").map('{:,.0f}'.format)
                 var_angle_max = pd.Series(var_angle_max, dtype=pd.Float64Dtype(), name="var_angle_max").map('{:,.0f}'.format)  
+
+                SEve_mean = pd.Series(SEve_mean, dtype=pd.Float64Dtype(), name="SEve_mean").map('{:,.4f}'.format)
+                SEve_median = pd.Series(SEve_median, dtype=pd.Float64Dtype(), name="SEve_median").map('{:,.4f}'.format)
+                SEve_min = pd.Series(SEve_min, dtype=pd.Float64Dtype(), name="SEve_min").map('{:,.4f}'.format)
+                SEve_max = pd.Series(SEve_max, dtype=pd.Float64Dtype(), name="SEve_max").map('{:,.4f}'.format) 
+
+                SDiv_mean = pd.Series(SDiv_mean, dtype=pd.Float64Dtype(), name="SDiv_mean").map('{:,.4f}'.format)
+                SDiv_median = pd.Series(SDiv_median, dtype=pd.Float64Dtype(), name="SDiv_median").map('{:,.4f}'.format)
+                SDiv_min = pd.Series(SDiv_min, dtype=pd.Float64Dtype(), name="SDiv_min").map('{:,.4f}'.format)
+                SDiv_max = pd.Series(SDiv_max, dtype=pd.Float64Dtype(), name="SDiv_max").map('{:,.4f}'.format) 
+
+                SAgg_mean = pd.Series(SAgg_mean, dtype=pd.Float64Dtype(), name="SAgg_mean").map('{:,.4f}'.format)
+                SAgg_median = pd.Series(SAgg_median, dtype=pd.Float64Dtype(), name="SAgg_median").map('{:,.4f}'.format)
+                SAgg_min = pd.Series(SAgg_min, dtype=pd.Float64Dtype(), name="SAgg_min").map('{:,.4f}'.format)
+                SAgg_max = pd.Series(SAgg_max, dtype=pd.Float64Dtype(), name="SAgg_max").map('{:,.4f}'.format) 
 
                 # Put all extracted parameters into a data frame
                 Output_data = pd.concat(
@@ -2724,7 +2814,19 @@ class Ui_StoManager1(object):
                     var_angle_mean,
                     var_angle_median,
                     var_angle_min,
-                    var_angle_max], 
+                    var_angle_max,
+                    SEve_mean,
+                    SEve_median,
+                    SEve_min,
+                    SEve_max,
+                    SDiv_mean,
+                    SDiv_median,
+                    SDiv_min,
+                    SDiv_max,
+                    SAgg_mean,
+                    SAgg_median,
+                    SAgg_min,
+                    SAgg_max], 
                     axis=1)
                 
                 Output_data = pd.DataFrame(data=Output_data)
