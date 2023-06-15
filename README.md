@@ -13,7 +13,7 @@ A stand-alone Windows based executable application can be downloaded through fro
 
 The Toy dataset can be found folowing the link: https://drive.google.com/drive/folders/1kSicatjBYj1BYc0TWhrRvXRALocct6sI?usp=share_link
 
-The simplified manual is available here  [Manual_StoManager1.pdf](https://github.com/JiaxinWang123/StoManager1/files/10921841/Manual_StoManager1.pdf)
+The simplified manual is available here  [Manual_StoManager1_0504.23_0513.pdf](https://github.com/JiaxinWang123/StoManager1/files/11752449/Manual_StoManager1_0504.23_0513.pdf)
 
 
 
