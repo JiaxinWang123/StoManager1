@@ -2650,7 +2650,7 @@ class Ui_StoManager1(object):
                             length = int(max(edge_length))
                             # get width of polygon as the shortest edge of the bounding box
                             width = int(min(edge_length)) 
-                            seg_area = int(PolyArea(x,y))*(100/scale_percent)
+                            seg_area = int(PolyArea(x,y))*((100/scale_percent)*(100/scale_percent))
                             centroid = (int(sum(x) / len(x)), int(sum(y) / len(y)))
                         
                             def _azimuth(point1, point2):
