@@ -527,7 +527,7 @@ class Ui_StoManager1(object):
 
     def retranslateUi(self, StoManager1):
         _translate = QtCore.QCoreApplication.translate
-        StoManager1.setWindowTitle(_translate("StoManager1", "StoManager1.v.0621.23.Seg-x.For_Hardwoods"))
+        StoManager1.setWindowTitle(_translate("StoManager1", "StoManager1.v.0.8.8.Seg-x.For_Hardwoods"))
         self.pushButton.setText(_translate("StoManager1", "<< View previous"))
         self.pushButton_4.setText(_translate("StoManager1", "View original images"))
         self.pushButton_10.setText(_translate("StoManager1", "View next >>"))
@@ -1520,6 +1520,21 @@ class Ui_StoManager1(object):
             var_angle_min = []
             var_angle_max = []
 
+            SEve_mean = []
+            SEve_median = []
+            SEve_min = []
+            SEve_max = []            
+
+            SDiv_mean = []
+            SDiv_median = []
+            SDiv_min = []
+            SDiv_max = []     
+
+            SAgg_mean = []
+            SAgg_median = []
+            SAgg_min = []
+            SAgg_max = []            
+
             Filename = []            
 
             Site = []
@@ -1587,6 +1602,10 @@ class Ui_StoManager1(object):
                                 wst_density = single_csv_file["wst_density"]
                                 ratio_area_st_gc = single_csv_file["ratio_area_st_to_gc"]
                                 ratio_area_to_img = single_csv_file["ratio_area_to_img"]
+
+                                SEve = single_csv_file["SEve"]
+                                SDiv = single_csv_file["SDiv"]
+                                SAgg = single_csv_file["SAgg"]                                
 
                                 # print(type(box_w_wst))
 
@@ -1953,6 +1972,21 @@ class Ui_StoManager1(object):
                                 var_angle_min_ = min(var_angle)
                                 var_angle_max_ = max(var_angle)
 
+                                SEve_mean_ = np.mean(SEve)
+                                SEve_median_ = np.median(SEve)
+                                SEve_min_ = min(SEve)
+                                SEve_max_ = max(SEve)
+
+                                SDiv_mean_ = np.mean(SDiv)
+                                SDiv_median_ = np.median(SDiv)
+                                SDiv_min_ = min(SDiv)
+                                SDiv_max_ = max(SDiv)
+
+                                SAgg_mean_ = np.mean(SAgg)
+                                SAgg_median_ = np.median(SAgg)
+                                SAgg_min_ = min(SAgg)
+                                SAgg_max_ = max(SAgg)                                
+
                                 ## append these measurements to the lists
                                 # for whole_stomata
                                 No_wst_mean.append(No_wst_mean_)
@@ -2096,7 +2130,22 @@ class Ui_StoManager1(object):
                                 ratio_area_to_img_median.append(ratio_area_to_img_median_)
                                 ratio_area_to_img_min.append(ratio_area_to_img_min_)
                                 ratio_area_to_img_max.append(ratio_area_to_img_max_)
-                                
+
+                                SEve_mean.append(SEve_mean_)
+                                SEve_median.append(SEve_median_)
+                                SEve_min.append(SEve_min_)
+                                SEve_max.append(SEve_max_)
+
+                                SDiv_mean.append(SDiv_mean_)
+                                SDiv_median.append(SDiv_median_)
+                                SDiv_min.append(SDiv_min_)
+                                SDiv_max.append(SDiv_max_)
+
+                                SAgg_mean.append(SAgg_mean_)
+                                SAgg_median.append(SAgg_median_)
+                                SAgg_min.append(SAgg_min_)
+                                SAgg_max.append(SAgg_max_)
+
                                 self.progressBar.setValue(int((self.img_num / len(glob.glob(output_image_path_ + '/' + '*.csv'))*100)))
                                 QtWidgets.QApplication.processEvents()
 
@@ -2247,7 +2296,22 @@ class Ui_StoManager1(object):
                     var_angle_mean = pd.Series(var_angle_mean, dtype=pd.Float64Dtype(), name="var_angle_mean").map('{:,.0f}'.format)
                     var_angle_median = pd.Series(var_angle_median, dtype=pd.Float64Dtype(), name="var_angle_median").map('{:,.0f}'.format)
                     var_angle_min = pd.Series(var_angle_min, dtype=pd.Float64Dtype(), name="var_angle_min").map('{:,.0f}'.format)
-                    var_angle_max = pd.Series(var_angle_max, dtype=pd.Float64Dtype(), name="var_angle_max").map('{:,.0f}'.format)  
+                    var_angle_max = pd.Series(var_angle_max, dtype=pd.Float64Dtype(), name="var_angle_max").map('{:,.0f}'.format) 
+
+                    SEve_mean = pd.Series(SEve_mean, dtype=pd.Float64Dtype(), name="SEve_mean").map('{:,.4f}'.format)
+                    SEve_median = pd.Series(SEve_median, dtype=pd.Float64Dtype(), name="SEve_median").map('{:,.4f}'.format)
+                    SEve_min = pd.Series(SEve_min, dtype=pd.Float64Dtype(), name="SEve_min").map('{:,.4f}'.format)
+                    SEve_max = pd.Series(SEve_max, dtype=pd.Float64Dtype(), name="SEve_max").map('{:,.4f}'.format) 
+
+                    SDiv_mean = pd.Series(SDiv_mean, dtype=pd.Float64Dtype(), name="SDiv_mean").map('{:,.4f}'.format)
+                    SDiv_median = pd.Series(SDiv_median, dtype=pd.Float64Dtype(), name="SDiv_median").map('{:,.4f}'.format)
+                    SDiv_min = pd.Series(SDiv_min, dtype=pd.Float64Dtype(), name="SDiv_min").map('{:,.4f}'.format)
+                    SDiv_max = pd.Series(SDiv_max, dtype=pd.Float64Dtype(), name="SDiv_max").map('{:,.4f}'.format) 
+
+                    SAgg_mean = pd.Series(SAgg_mean, dtype=pd.Float64Dtype(), name="SAgg_mean").map('{:,.4f}'.format)
+                    SAgg_median = pd.Series(SAgg_median, dtype=pd.Float64Dtype(), name="SAgg_median").map('{:,.4f}'.format)
+                    SAgg_min = pd.Series(SAgg_min, dtype=pd.Float64Dtype(), name="SAgg_min").map('{:,.4f}'.format)
+                    SAgg_max = pd.Series(SAgg_max, dtype=pd.Float64Dtype(), name="SAgg_max").map('{:,.4f}'.format)                      
 
                     Site = pd.Series(Site, dtype=pd.StringDtype(), name="Site")
                     Block = pd.Series(Block, dtype=pd.StringDtype(), name="Block")
@@ -2373,7 +2437,19 @@ class Ui_StoManager1(object):
                         var_angle_mean,
                         var_angle_median,
                         var_angle_min,
-                        var_angle_max], 
+                        var_angle_max,
+                        SEve_mean,
+                        SEve_median,
+                        SEve_min,
+                        SEve_max,
+                        SDiv_mean,
+                        SDiv_median,
+                        SDiv_min,
+                        SDiv_max,
+                        SAgg_mean,
+                        SAgg_median,
+                        SAgg_min,
+                        SAgg_max], 
                         axis=1)
                     
                     # check if the files are currently opening ? if yes, create a copy, if not replace the older ones
