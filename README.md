@@ -20,7 +20,7 @@ The simplified manual is available here [Manual_StoManager1_v0.8.7.pdf](https://
 
 
 
-Prepreint manuscript is available: 
+Preprint manuscript is available: 
 
 https://doi.org/10.48550/arXiv.2304.10450
 
