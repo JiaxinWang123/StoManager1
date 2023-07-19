@@ -12,9 +12,7 @@ The Toy dataset can be found through [here](https://drive.google.com/drive/folde
 
 The simplified manual is available [Manual_StoManager1_v0.8.7.pdf](https://github.com/JiaxinWang123/StoManager1/files/11871577/Manual_StoManager1_v0.8.7.pdf)
 
-Preprint manuscript is available: 
-
-https://doi.org/10.48550/arXiv.2304.10450
+Preprint manuscript is available on [![arXiv](https://img.shields.io/badge/arXiv-arXiv:2304.10450-b31b1b.svg?style=plastic)](https://arxiv.org/abs/arXiv:2304.10450)
 
 Please Cite as:
 
