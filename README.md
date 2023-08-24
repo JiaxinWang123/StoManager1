@@ -31,7 +31,7 @@ Please Cite as:
 
 Wang, Jiaxin; Renninger, Heidi J. (2023): Labeled 17 Hardwood Species and 55 Genotypes of *Populus* Stomatal Images Datasets. figshare. [Dataset](https://doi.org/10.6084/m9.figshare.22255873)
 
-### The code is available: https://github.com/JiaxinWang123/ScientificData
+### The code is available: [ScientificData_Labeled_Hardwood_Images](https://github.com/JiaxinWang123/ScientificData_Labeled_Hardwood_Images)
 
 
 
