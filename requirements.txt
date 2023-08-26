@@ -43,7 +43,7 @@ colour==0.1.5
 ConfigArgParse==1.5.5
 configobj==5.0.8
 contourpy==1.0.5
-cryptography==38.0.2
+cryptography==41.0.3
 cycler==0.11.0
 Cython==3.0.0
 cython-npm==0.2.4
