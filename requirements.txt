@@ -306,7 +306,7 @@ torch==1.13.1+cu117
 torch-resize-images==0.1.7
 torchaudio==0.13.1+cu117
 torchvision==0.14.1+cu117
-tornado==6.2
+tornado==6.3.3
 tqdm==4.64.1
 traitlets==5.4.0
 traittypes==0.2.1
