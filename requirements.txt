@@ -125,7 +125,7 @@ ipyfilechooser==0.6.0
 ipygany==0.5.0
 ipykernel==6.16.0
 ipyleaflet==0.17.3
-ipython==8.5.0
+ipython==8.10.0
 ipython-genutils==0.2.0
 ipytree==0.2.2
 ipyvtklink==0.2.2
