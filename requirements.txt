@@ -263,7 +263,7 @@ Rtree==1.0.1
 scikit-image==0.19.3
 scikit-learn==1.1.2
 scikit-optimize==0.9.0
-scipy==1.9.1
+scipy==1.10.0
 scooby==0.7.2
 seaborn==0.12.2
 Send2Trash==1.8.0
