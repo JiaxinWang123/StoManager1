@@ -139,7 +139,7 @@ jupyter==1.0.0
 jupyter_client==7.4.2
 jupyter-console==6.4.4
 jupyter_core==4.11.1
-jupyter-server==1.21.0
+jupyter-server==2.7.2
 jupyterlab-pygments==0.2.2
 jupyterlab-widgets==3.0.8
 kaleido==0.2.1
