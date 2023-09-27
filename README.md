@@ -36,7 +36,7 @@ and [Zenodo](https://doi.org/10.5281/zenodo.8266240)
 
 
 
-# StoManager1_v8： Enhanced version with more stomatal metrics measured with geographical algorithms!!
+# StoManager1_v8： Enhanced version with more stomatal metrics measured with geometrical algorithms!!
 
 ![image](https://user-images.githubusercontent.com/98176596/236367191-ccbfbcaa-bbeb-421a-96e3-ebd461b3bda1.png)
 
