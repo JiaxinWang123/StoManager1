@@ -113,7 +113,7 @@ heic-to-jpg==0.1.9
 hsluv==5.0.2
 httplib2==0.22.0
 idna==3.4
-imagecodecs==2022.9.26
+imagecodecs==2023.9.18
 imageio==2.25.1
 importlib-metadata==4.11.4
 importlib-resources==5.10.0
