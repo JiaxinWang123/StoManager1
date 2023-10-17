@@ -314,7 +314,7 @@ typing_extensions==4.4.0
 ultralytics==8.0.92
 unicodedata2==14.0.0
 uritemplate==4.1.1
-urllib3==1.26.11
+urllib3==1.26.18
 vispy==0.12.1
 vtk==9.2.6
 wcwidth==0.2.5
