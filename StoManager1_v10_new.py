@@ -211,7 +211,7 @@ class Ui_StoManager1_training(QMainWindow):
         self.pushButton_3.setStyleSheet("background-color: rgb(91, 215, 244);\n"
 "")
         self.pushButton_3.setObjectName("pushButton_3")
-        self.pushButton_3.clicked.connect(self.start_training)
+        self.pushButton_3.clicked.connect(self.Check_input_path_folder)
         
         self.horizontalLayout_3.addWidget(self.pushButton_3)
         self.pushButton_6 = QtWidgets.QPushButton(self.centralwidget)
@@ -372,9 +372,37 @@ class Ui_StoManager1_training(QMainWindow):
     def enableCheckTrainingResultButton(self):
         self.pushButton_7.setEnabled(True)  # Enable the "Check training result" button
 
+    def Check_input_path_folder(self):
+        data_path = self.lineEdit.text()
+        model_path = self.lineEdit_2.text()
+
+        if data_path and model_path:
+            # Both paths are provided, you can start training here
+            if data_path == "Select training data input data.yaml" or model_path == "Select model_training_in_app.exe file" or data_path == "" or model_path == "":
+                self.show_message()
+            else:
+                self.start_training()
+        else:
+            # Show a message box indicating that both paths are required
+            self.show_message("Error", "Please select both data.yaml and trainer files.")
+
+    def show_message(self):
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Warning)
+        msg.setWindowIcon(QtGui.QIcon('StoManager.ico'))
+        # setting message for Message Box
+        msg.setText("Oh... You may forget define path....")        
+        # setting Message box window title
+        msg.setWindowTitle("Define your data file and model trainer 🐸")        
+        # declaring buttons on Message Box
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.setInformativeText("Please define both file path, and try one more time. 🐻")       
+        # start the app
+        msg.exec_()
+
     def openFileExplorer(self):
         
-        # os.chdir(os.path.dirname(sys.executable))  # Uncomment this line if you not use it in Python interpreter
+        #os.chdir(os.path.dirname(sys.executable))  # Uncomment this line if you not use it in Python interpreter
         # Append the "runs/segment" subdirectory
         desired_path = os.path.join(os.getcwd(), "runs", "segment")
         if os.path.exists(desired_path) and os.path.isdir(desired_path):
@@ -483,6 +511,7 @@ class Ui_StoManager1_training(QMainWindow):
 
     def update_console(self, text):
         self.plainTextEdit.append(text)
+
 
 class TrainingRunner(QThread):
     update_signal = Signal(str)
