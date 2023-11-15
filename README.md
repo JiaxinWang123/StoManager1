@@ -10,7 +10,7 @@ A stand-alone Windows based executable application can be downloaded through fro
 
 The Toy dataset can be found through [here](https://drive.google.com/drive/folders/1kSicatjBYj1BYc0TWhrRvXRALocct6sI?usp=share_link)
 
-The simplified manual is available [Manual_StoManager1_v0.8.7.pdf](https://github.com/JiaxinWang123/StoManager1/files/11871577/Manual_StoManager1_v0.8.7.pdf)
+The simplified manual is available [StoManager1.0.0_Manual.pdf]()
 
 Preprint manuscript is available on [![arXiv](https://img.shields.io/badge/arXiv-arXiv:2304.10450-b31b1b.svg?style=plastic)](https://arxiv.org/abs/arXiv:2304.10450)
 
