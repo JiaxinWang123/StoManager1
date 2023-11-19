@@ -6,15 +6,12 @@ import glob
 import random
 import pandas as pd
 import math
-import statistics
 import string
 import re
 from PyQt5 import QtCore, QtGui, QtWidgets
-import sys
 import csv
 from PyQt5.QtGui import QPixmap
 import webbrowser
-from pathlib import Path
 #########################
 
 #### Import packages for segment models####
@@ -25,21 +22,17 @@ import os
 import torch
 import os, shutil
 import glob
-import openpyxl
 from scipy.spatial import distance, distance_matrix
 from scipy.sparse.csgraph import minimum_spanning_tree
 ########################
 
 # Another Window #
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QLabel, QVBoxLayout, QWidget
+from PyQt5.QtWidgets import QMainWindow
 import sys
-from random import randint
-
-import sys
-from qtpy.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QWidget, QPushButton, QTextBrowser
 from PyQt5 import QtCore, QtGui, QtWidgets
 from qtpy.QtCore import QThread, Signal
 import subprocess
+import io
 
 
 class Ui_StoManager1_training(QMainWindow):
@@ -51,8 +44,9 @@ class Ui_StoManager1_training(QMainWindow):
         self.training_running = False
 
     def setupUi(self, StoManager1):
-        StoManager1.setObjectName("StoManager1_v10_Seg-x_Hardwoods")
-        StoManager1.resize(1230, 840)
+
+        StoManager1.setObjectName("StoManager1")
+        StoManager1.resize(1200, 800)
         StoManager1.setWindowIcon(QtGui.QIcon("StoManager.ico"))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(3)
@@ -72,12 +66,14 @@ class Ui_StoManager1_training(QMainWindow):
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
-        self.verticalLayout_3 = QtWidgets.QVBoxLayout()
+        self.verticalWidget_2 = QtWidgets.QWidget(self.centralwidget)
+        self.verticalWidget_2.setObjectName("verticalWidget_2")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.verticalWidget_2)
         self.verticalLayout_3.setSizeConstraint(QtWidgets.QLayout.SetDefaultConstraint)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.horizontalLayout = QtWidgets.QHBoxLayout()
         self.horizontalLayout.setObjectName("horizontalLayout")
-        self.lineEdit = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit = QtWidgets.QLineEdit(self.verticalWidget_2)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(8)
@@ -89,7 +85,7 @@ class Ui_StoManager1_training(QMainWindow):
         self.lineEdit.setClearButtonEnabled(True)
         self.lineEdit.setObjectName("lineEdit")
         self.horizontalLayout.addWidget(self.lineEdit)
-        self.pushButton_8 = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_8 = QtWidgets.QPushButton(self.verticalWidget_2)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(8)
@@ -105,7 +101,7 @@ class Ui_StoManager1_training(QMainWindow):
         self.verticalLayout_3.addLayout(self.horizontalLayout)
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
-        self.lineEdit_2 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_2 = QtWidgets.QLineEdit(self.verticalWidget_2)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(8)
@@ -117,7 +113,7 @@ class Ui_StoManager1_training(QMainWindow):
         self.lineEdit_2.setClearButtonEnabled(True)
         self.lineEdit_2.setObjectName("lineEdit_2")
         self.horizontalLayout_2.addWidget(self.lineEdit_2)
-        self.pushButton_9 = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_9 = QtWidgets.QPushButton(self.verticalWidget_2)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(8)
@@ -137,7 +133,7 @@ class Ui_StoManager1_training(QMainWindow):
         self.verticalLayout_2.addLayout(self.horizontalLayout_9)
         self.verticalLayout = QtWidgets.QVBoxLayout()
         self.verticalLayout.setObjectName("verticalLayout")
-        self.lineEdit_4 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_4 = QtWidgets.QLineEdit(self.verticalWidget_2)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(8)
@@ -149,7 +145,7 @@ class Ui_StoManager1_training(QMainWindow):
         self.lineEdit_4.setClearButtonEnabled(True)
         self.lineEdit_4.setObjectName("lineEdit_4")
         self.verticalLayout.addWidget(self.lineEdit_4)
-        self.lineEdit_5 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_5 = QtWidgets.QLineEdit(self.verticalWidget_2)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(8)
@@ -161,7 +157,7 @@ class Ui_StoManager1_training(QMainWindow):
         self.lineEdit_5.setClearButtonEnabled(True)
         self.lineEdit_5.setObjectName("lineEdit_5")
         self.verticalLayout.addWidget(self.lineEdit_5)
-        self.lineEdit_6 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_6 = QtWidgets.QLineEdit(self.verticalWidget_2)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(8)
@@ -173,7 +169,7 @@ class Ui_StoManager1_training(QMainWindow):
         self.lineEdit_6.setClearButtonEnabled(True)
         self.lineEdit_6.setObjectName("lineEdit_6")
         self.verticalLayout.addWidget(self.lineEdit_6)
-        self.lineEdit_7 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_7 = QtWidgets.QLineEdit(self.verticalWidget_2)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(8)
@@ -185,7 +181,7 @@ class Ui_StoManager1_training(QMainWindow):
         self.lineEdit_7.setClearButtonEnabled(True)
         self.lineEdit_7.setObjectName("lineEdit_7")
         self.verticalLayout.addWidget(self.lineEdit_7)
-        self.lineEdit_9 = QtWidgets.QLineEdit(self.centralwidget)
+        self.lineEdit_9 = QtWidgets.QLineEdit(self.verticalWidget_2)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(8)
@@ -197,10 +193,19 @@ class Ui_StoManager1_training(QMainWindow):
         self.lineEdit_9.setClearButtonEnabled(True)
         self.lineEdit_9.setObjectName("lineEdit_9")
         self.verticalLayout.addWidget(self.lineEdit_9)
+        self.checkBox = QtWidgets.QCheckBox(self.verticalWidget_2)
+        self.checkBox.setStyleSheet("color : rgb(255, 255, 255)")
+        self.checkBox.setChecked(True)
+        self.checkBox.setObjectName("checkBox")
+        self.verticalLayout.addWidget(self.checkBox)
+        self.checkBox_2 = QtWidgets.QCheckBox(self.verticalWidget_2)
+        self.checkBox_2.setStyleSheet("color : rgb(255, 255, 255)")
+        self.checkBox_2.setObjectName("checkBox_2")
+        self.verticalLayout.addWidget(self.checkBox_2)
         self.verticalLayout_2.addLayout(self.verticalLayout)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
-        self.pushButton_3 = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_3 = QtWidgets.QPushButton(self.verticalWidget_2)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(8)
@@ -212,9 +217,8 @@ class Ui_StoManager1_training(QMainWindow):
 "")
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_3.clicked.connect(self.Check_input_path_folder)
-        
         self.horizontalLayout_3.addWidget(self.pushButton_3)
-        self.pushButton_6 = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_6 = QtWidgets.QPushButton(self.verticalWidget_2)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(8)
@@ -227,7 +231,7 @@ class Ui_StoManager1_training(QMainWindow):
         self.pushButton_6.setObjectName("pushButton_6")
         self.pushButton_6.clicked.connect(self.stop_script)
         self.horizontalLayout_3.addWidget(self.pushButton_6)
-        self.pushButton_7 = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton_7 = QtWidgets.QPushButton(self.verticalWidget_2)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(8)
@@ -237,15 +241,14 @@ class Ui_StoManager1_training(QMainWindow):
         self.pushButton_7.setFont(font)
         self.pushButton_7.setStyleSheet("background-color: rgb(15, 160, 123);")
         self.pushButton_7.setObjectName("pushButton_7")
-        self.pushButton_7.setEnabled(False)  # Initially disable the "Check training result" button
         self.pushButton_7.clicked.connect(self.openFileExplorer)
         self.horizontalLayout_3.addWidget(self.pushButton_7)
         self.verticalLayout_2.addLayout(self.horizontalLayout_3)
-        #self.progressBar = QtWidgets.QProgressBar(self.centralwidget)
-        #self.progressBar.setProperty("value", 0)
-        #self.progressBar.setObjectName("progressBar")
-        #self.verticalLayout_2.addWidget(self.progressBar)
-        self.plainTextEdit = QtWidgets.QTextBrowser(self.centralwidget)
+        # self.progressBar = QtWidgets.QProgressBar(self.verticalWidget_2)
+        # self.progressBar.setProperty("value", 0)
+        # self.progressBar.setObjectName("progressBar")
+        # self.verticalLayout_2.addWidget(self.progressBar)
+        self.plainTextEdit = QtWidgets.QPlainTextEdit(self.verticalWidget_2)
         self.plainTextEdit.setAutoFillBackground(False)
         self.plainTextEdit.setStyleSheet("background-color: rgb(30, 30, 30); color: white\n"
 "\n"
@@ -255,7 +258,7 @@ class Ui_StoManager1_training(QMainWindow):
         self.verticalLayout_2.addWidget(self.plainTextEdit)
         self.horizontalLayout_10 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_10.setObjectName("horizontalLayout_10")
-        self.label_3 = QtWidgets.QLabel(self.centralwidget)
+        self.label_3 = QtWidgets.QLabel(self.verticalWidget_2)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(8)
@@ -263,7 +266,7 @@ class Ui_StoManager1_training(QMainWindow):
         self.label_3.setStyleSheet("color: rgb(214, 214, 214);")
         self.label_3.setObjectName("label_3")
         self.horizontalLayout_10.addWidget(self.label_3)
-        self.label_9 = QtWidgets.QLabel(self.centralwidget)
+        self.label_9 = QtWidgets.QLabel(self.verticalWidget_2)
         font = QtGui.QFont()
         font.setFamily("Arial")
         font.setPointSize(8)
@@ -276,7 +279,7 @@ class Ui_StoManager1_training(QMainWindow):
         self.horizontalLayout_10.addWidget(self.label_9)
         self.verticalLayout_2.addLayout(self.horizontalLayout_10)
         self.verticalLayout_3.addLayout(self.verticalLayout_2)
-        self.gridLayout.addLayout(self.verticalLayout_3, 0, 0, 1, 1)
+        self.gridLayout.addWidget(self.verticalWidget_2, 0, 0, 1, 1)
         StoManager1.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(StoManager1)
         self.statusbar.setObjectName("statusbar")
@@ -328,22 +331,31 @@ class Ui_StoManager1_training(QMainWindow):
         self.menuTraining.addAction(self.actionOpen_training_window)
         self.menubar.addAction(self.menuTraining.menuAction())
         self.menubar.addAction(self.menuHelp.menuAction())
-
+        self.checkBox.stateChanged.connect(self.update_amp_state)
+        self.checkBox_2.stateChanged.connect(self.update_device_state)
         self.retranslateUi(StoManager1)
         QtCore.QMetaObject.connectSlotsByName(StoManager1)
+    
+    def update_amp_state(self):
+        self.amp = "True" if self.checkBox.isChecked() else "False"
+
+    def update_device_state(self):
+        self.device = "cpu" if self.checkBox_2.isChecked() else "gpu"
 
     def retranslateUi(self, StoManager1):
         _translate = QtCore.QCoreApplication.translate
-        StoManager1.setWindowTitle(_translate("StoManager1", "StoManager1_model_trainer_v.1.0.0"))
+        StoManager1.setWindowTitle(_translate("StoManager1", "StoManager1_model_trainer"))
         self.lineEdit.setText(_translate("StoManager1", "Select training data input data.yaml"))
         self.pushButton_8.setText(_translate("StoManager1", "Input"))
         self.lineEdit_2.setText(_translate("StoManager1", "Select model_training_in_app.exe file"))
         self.pushButton_9.setText(_translate("StoManager1", "Trainer"))
         self.lineEdit_4.setText(_translate("StoManager1", "Number of training epochs, default is 1000"))
         self.lineEdit_5.setText(_translate("StoManager1", "Image size, default is 640"))
-        self.lineEdit_6.setText(_translate("StoManager1", "Batch, default is 2"))
+        self.lineEdit_6.setText(_translate("StoManager1", "Batch, 2-64 depends on your GPU or CPU, default is 2"))
         self.lineEdit_7.setText(_translate("StoManager1", "Fliplr, default is 0"))
         self.lineEdit_9.setText(_translate("StoManager1", "Workers, default is 0"))
+        self.checkBox.setText(_translate("StoManager1", "AMP Check, uncheck it if you got nan for training metrics"))
+        self.checkBox_2.setText(_translate("StoManager1", "Train on CPU, check it if you don't have a powerful GPU"))        
         self.pushButton_3.setText(_translate("StoManager1", "Start Training"))
         self.pushButton_6.setText(_translate("StoManager1", "Stop Training"))
         self.pushButton_7.setText(_translate("StoManager1", "Check training result"))
@@ -369,8 +381,6 @@ class Ui_StoManager1_training(QMainWindow):
         self.training_runner = TrainingRunner()
         self.training_runner.update_signal.connect(self.update_console)
         self.training_running = False
-    def enableCheckTrainingResultButton(self):
-        self.pushButton_7.setEnabled(True)  # Enable the "Check training result" button
 
     def Check_input_path_folder(self):
         data_path = self.lineEdit.text()
@@ -391,7 +401,7 @@ class Ui_StoManager1_training(QMainWindow):
         msg.setIcon(QtWidgets.QMessageBox.Warning)
         msg.setWindowIcon(QtGui.QIcon('StoManager.ico'))
         # setting message for Message Box
-        msg.setText("Oh... You may forget define path....")        
+        msg.setText("Oh... You may forget define path of training data and model trainer....")        
         # setting Message box window title
         msg.setWindowTitle("Define your data file and model trainer 🐸")        
         # declaring buttons on Message Box
@@ -400,9 +410,23 @@ class Ui_StoManager1_training(QMainWindow):
         # start the app
         msg.exec_()
 
+    def show_message_2(self):
+        msg = QtWidgets.QMessageBox()
+        msg.setIcon(QtWidgets.QMessageBox.Warning)
+        msg.setWindowIcon(QtGui.QIcon('StoManager.ico'))
+        # setting message for Message Box
+        msg.setText("Oh... You haven't started training yet....")        
+        # setting Message box window title
+        msg.setWindowTitle("Define your data file and model trainer and start your training 🐸")        
+        # declaring buttons on Message Box
+        msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
+        msg.setInformativeText("Please define your data file and model trainer and start your training, and try one more time. 🐻")       
+        # start the app
+        msg.exec_()        
+
     def openFileExplorer(self):
-        
-        #os.chdir(os.path.dirname(sys.executable))  # Uncomment this line if you not use it in Python interpreter
+        # os.chdir(os.path.dirname(sys.executable))  # Comment this line out if you use it in python interpreter
+
         # Append the "runs/segment" subdirectory
         desired_path = os.path.join(os.getcwd(), "runs", "segment")
         if os.path.exists(desired_path) and os.path.isdir(desired_path):
@@ -410,8 +434,9 @@ class Ui_StoManager1_training(QMainWindow):
             QtWidgets.QFileDialog.getOpenFileName(self, "Open Directory", desired_path, "All Files (*);;", options=options)
             self.pushButton_7.setEnabled(True)  # Enable the "Check training result" button
         else:
-            pass
-        
+            self.show_message_2()
+            self.pushButton_7.setEnabled(False)  # Disable the "Check training result" button
+
     def web_link_ultralytics(self):
         """ """
         webbrowser.open("https://github.com/ultralytics/ultralytics")
@@ -442,8 +467,10 @@ class Ui_StoManager1_training(QMainWindow):
         fliplr = self.lineEdit_7.text()
         workers = self.lineEdit_9.text()
         weights_path = self.lineEdit_2.text()
+        amp = "True" if self.checkBox.isChecked() else "False"
+        device = "cpu" if self.checkBox_2.isChecked() else "gpu"
 
-        return script_path, data_input_path, epoch, imgsz, batch, fliplr, workers, weights_path
+        return script_path, data_input_path, epoch, imgsz, batch, fliplr, workers, weights_path, amp, device
 
     def stop_script(self):
         if self.training_running:
@@ -461,10 +488,9 @@ class Ui_StoManager1_training(QMainWindow):
             self.training_running = True
             self.pushButton_3.setEnabled(False)
             self.plainTextEdit.clear()
-            self.enableCheckTrainingResultButton()  # Enable the "Check training result" button
 
             # Get parameters from QLineEdit widgets
-            script_path, data_input_path, epoch, imgsz, batch, fliplr, workers, weights_path = self.get_parameters()
+            script_path, data_input_path, epoch, imgsz, batch, fliplr, workers, weights_path, amp, device = self.get_parameters()
 
             weights_path = script_path  # Specify the desired file path here
             folder_path = os.path.dirname(weights_path)
@@ -480,7 +506,7 @@ class Ui_StoManager1_training(QMainWindow):
             else:
                 imgsz = self.lineEdit_5.text()
 
-            if batch == "Batch, default is 2" or batch == "" or batch == " ":
+            if batch == "Batch, 2-64 depends on your GPU or CPU, default is 2" or batch == "" or batch == " ":
                 batch = 2
             else:
                 batch = self.lineEdit_6.text()
@@ -497,24 +523,19 @@ class Ui_StoManager1_training(QMainWindow):
 
             # Set parameters for the TrainingRunner object
             self.training_runner = TrainingRunner()
-            self.training_runner.set_parameters(script_path, data_input_path, epoch, imgsz, batch, fliplr, workers, weights_path)
+            self.training_runner.set_parameters(script_path, data_input_path, epoch, imgsz, batch, fliplr, workers, weights_path,amp,device)
             self.training_runner.update_signal.connect(self.update_console)
-
-            # Start the subprocess
-            self.training_process = subprocess.Popen([
-                script_path, data_input_path, weights_path, str(epoch), str(imgsz),
-                str(batch), str(fliplr), str(workers), weights_path
-            ], stdout=subprocess.PIPE, stderr=subprocess.STDOUT, stdin=subprocess.PIPE, universal_newlines=True, close_fds=True, env=os.environ)
+            self.training_runner.finished_signal.connect(self.stop_script)  # Connect to the stop_script method
 
             # Start the training thread
             self.training_runner.start()
 
     def update_console(self, text):
-        self.plainTextEdit.append(text)
-
+        self.plainTextEdit.appendPlainText(text)
 
 class TrainingRunner(QThread):
     update_signal = Signal(str)
+    finished_signal = Signal()
 
     def __init__(self):
         super(TrainingRunner, self).__init__()
@@ -526,8 +547,10 @@ class TrainingRunner(QThread):
         self.fliplr = None
         self.workers = None
         self.weights_path = None
+        self.amp = None
+        self.device = None
 
-    def set_parameters(self, script_path, data_input_path, epoch, imgsz, batch, fliplr, workers, weights_path):
+    def set_parameters(self, script_path, data_input_path, epoch, imgsz, batch, fliplr, workers, weights_path, amp,device):
         self.script_path = script_path
         self.model_output_path = self.script_path
         self.data_input_path = data_input_path
@@ -537,28 +560,42 @@ class TrainingRunner(QThread):
         self.fliplr = fliplr
         self.workers = workers
         self.weights_path = weights_path
+        self.amp = amp
+        self.device = device
 
     def run(self):
         try:
             process = subprocess.Popen(
-                [self.script_path, self.data_input_path, self.model_output_path, str(self.epoch), str(self.imgsz), str(self.batch),
-                 str(self.fliplr), str(self.workers), self.weights_path],
+                ['python',self.script_path, self.data_input_path, self.model_output_path, str(self.epoch), str(self.imgsz),
+                 str(self.batch), str(self.fliplr), str(self.workers), self.weights_path, self.amp, self.device],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 stdin=subprocess.PIPE,
-                universal_newlines=True,
+                text=True,  # Use text instead of universal_newlines
                 close_fds=True,
                 env=os.environ
             )
 
-            for line in process.stdout:
+            # Create a non-blocking file object for stdout
+            stdout_reader = io.open(process.stdout.fileno(), 'r', encoding='utf-8', errors='replace')
+
+            while process.poll() is None:  # Check if the subprocess is still running
+                line = stdout_reader.readline()
+                if not line:
+                    break
                 self.update_signal.emit(line.strip())
 
-            process.communicate()
-            QtWidgets.QApplication.processEvents()
+            # Emit the signal when the subprocess is finished
+            self.finished_signal.emit()
         except Exception as e:
             self.update_signal.emit(f"Error: {str(e)}")
-            pass
+            print(f"Exception during run: {e}")
+        finally:
+            if process.poll() is None:  # Check if the subprocess is still running
+                process.terminate()  # Terminate the subprocess if it's still running
+                process.wait()  # Wait for the subprocess to finish
+    def update_console(self, text):
+        self.plainTextEdit.append(text)
 
 #### Main Window ####
 class Ui_StoManager1(object):
@@ -572,7 +609,7 @@ class Ui_StoManager1(object):
 
     def setupUi(self, StoManager1):
         StoManager1.setObjectName("StoManager1_v10_Seg-x_Hardwoods")
-        StoManager1.resize(1230, 840)
+        StoManager1.resize(1200, 800)
         StoManager1.setWindowIcon(QtGui.QIcon("StoManager.ico"))
         self.model = QtGui.QStandardItemModel(StoManager1)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
