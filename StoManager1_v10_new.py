@@ -1986,7 +1986,7 @@ class Ui_StoManager1(object):
                                 self.img_num +=1
                             except KeyError:
                                 self.keyError()
-                                self.img_num +=1                              
+                                self.img_num +=2                            
                             
                         else:
                             self.img_num +=1
@@ -2808,7 +2808,8 @@ class Ui_StoManager1(object):
 
                             except KeyError:
                                 self.keyError()
-                                self.img_num +=1                 
+                                Filename.pop()
+                                self.img_num +=2                 
 
                     # Convert all lists into pd.series
                     Filename = pd.Series(Filename, dtype=pd.StringDtype(), name="Filename")
@@ -4367,7 +4368,9 @@ class Ui_StoManager1(object):
 
                         except KeyError:
                             self.keyError()
+                            Filename.pop()
                             self.img_num +=2
+
                     else:
                         self.img_num +=1
                         pass
@@ -5066,7 +5069,7 @@ class Ui_StoManager1(object):
         msg.setIcon(QtWidgets.QMessageBox.Warning)
         msg.setWindowIcon(QtGui.QIcon('StoManager.ico'))
         # setting message for Message Box
-        msg.setText("Some of your images have less than 4 observations to to calculations")        
+        msg.setText("Some of your images have less than 4 observations to calculate")        
         # setting Message box window title
         msg.setWindowTitle("KeyError 🐸")        
         # declaring buttons on Message Box
