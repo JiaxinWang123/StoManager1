@@ -29,7 +29,7 @@ Please Cite as:
 }
 ```
 
-## We have also made our Labeled Hardwood and *Populus* datasets (over 1,1000 images and corresponding labels) available on figshare:
+## We have also made our Labeled Hardwood and *Populus* datasets (around 1,1000 images and corresponding labels) available on figshare:
 
 Wang, Jiaxin; Renninger, Heidi J. (2023): Labeled 17 Hardwood Species and 55 Genotypes of *Populus* Stomatal Images Datasets. figshare. [figshare](https://doi.org/10.6084/m9.figshare.22255873)
 and [Zenodo](https://doi.org/10.5281/zenodo.8266240)
