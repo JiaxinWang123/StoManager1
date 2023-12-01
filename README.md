@@ -36,6 +36,8 @@ and [Zenodo](https://doi.org/10.5281/zenodo.8266240)
 
 ### The code is available: [ScientificData_Labeled_Hardwood_Images](https://github.com/JiaxinWang123/ScientificData_Labeled_Hardwood_Images)
 
+The data paper has been accepted by Scientific Data and will be published soon.
+
 
 
 # StoManager1_v8： Enhanced version with more stomatal metrics measured with geometrical algorithms!!
