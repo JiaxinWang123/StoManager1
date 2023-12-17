@@ -37,8 +37,8 @@ If you use StoManager1 in your research, please cite as follows:
 - **Code for Datasets**: [ScientificData_Labeled_Hardwood_Images](https://github.com/JiaxinWang123/ScientificData_Labeled_Hardwood_Images)
 - **Publication Status**: Accepted by Scientific Data (publication pending).
 
-## StoManager1_v8: Enhanced Version
-StoManager1_v8 is an enhanced version of StoManager1, featuring additional stomatal metrics measured with geometrical algorithms.
+## StoManager1_v.1.0.0: Enhanced Version
+StoManager1_v.1.0.0 is an enhanced version of StoManager1, featuring additional stomatal metrics measured with geometrical algorithms.
 
 - **Latest Standalone Windows Version Apps**: [Zenodo](https://doi.org/10.5281/zenodo.7686022) | [Figshare](http://doi.org/10.6084/m9.figshare.22205020)
 
