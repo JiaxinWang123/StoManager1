@@ -35,7 +35,7 @@ If you use StoManager1 in your research, please cite as follows:
 ## Datasets
 - **Labeled Hardwood and *Populus* Datasets**: Approximately 11,000 images with corresponding labels available on [figshare](https://doi.org/10.6084/m9.figshare.22255873) and [Zenodo](https://doi.org/10.5281/zenodo.8266240).
 - **Code for Datasets**: [ScientificData_Labeled_Hardwood_Images](https://github.com/JiaxinWang123/ScientificData_Labeled_Hardwood_Images)
-- **Publication Status**: Accepted by Scientific Data (publication pending).
+- **Publication Status**: Accepted by Scientific Data (publication pending, will be online on Jan 1st, 2024).
 
 ## StoManager1_v.1.0.0: Enhanced Version
 StoManager1_v.1.0.0 is an enhanced version of StoManager1, featuring additional stomatal metrics measured with geometrical algorithms.
