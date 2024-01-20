@@ -89,7 +89,7 @@ geopandas==0.11.1
 gevent==22.10.2
 gevent-websocket==0.10.1
 gitdb==4.0.9
-GitPython==3.1.32
+GitPython==3.1.41
 glue-core==1.6.0
 glue-vispy-viewers==1.0.4
 glueviz==0.15.2
