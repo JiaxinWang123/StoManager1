@@ -21,6 +21,7 @@ StoManager1 is an advanced tool designed for the high-throughput measurement of 
 ## Citation
 If you use StoManager1 in your research, please cite as follows:
 
+- **Preprint**:
 ```bibtex
 @misc{wang2023stomanager1,
       title={StoManager1: Automated, High-throughput Tool to Measure Leaf Stomata Using Convolutional Neural Networks}, 
