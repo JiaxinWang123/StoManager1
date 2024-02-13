@@ -21,6 +21,9 @@ StoManager1 is an advanced tool designed for the high-throughput measurement of 
 ## Citation
 If you use StoManager1 in your research, please cite as follows:
 
+- **Research Article**:
+  - Jiaxin Wang*, Heidi J. Renninger, Qin Ma, Shichao Jin, Measuring stomatal and guard cell metrics for plant physiology and growth using StoManager1, Plant Physiology, (2024). https://doi.org/10.1093/plphys/kiae049
+
 - **Preprint**:
 ```bibtex
 @misc{wang2023stomanager1,
@@ -32,8 +35,6 @@ If you use StoManager1 in your research, please cite as follows:
       primaryClass={q-bio.TO}
 }
 ```
-- **Research Article**:
-  - Jiaxin Wang*, Heidi J. Renninger, Qin Ma, Shichao Jin, Measuring stomatal and guard cell metrics for plant physiology and growth using StoManager1, Plant Physiology, (2024). https://doi.org/10.1093/plphys/kiae049
 
 ## Datasets
 - **Labeled Hardwood and *Populus* Datasets**: Approximately 11,000 images with corresponding labels available on [figshare](https://doi.org/10.6084/m9.figshare.22255873) and [Zenodo](https://doi.org/10.5281/zenodo.8266240).
