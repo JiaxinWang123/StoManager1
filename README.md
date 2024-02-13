@@ -45,5 +45,6 @@ If you use StoManager1 in your research, please cite as follows:
 StoManager1_v.1.0.0 is an enhanced version of StoManager1, featuring additional stomatal metrics measured with geometrical algorithms.
 
 - **Latest Standalone Windows Version Apps**: [Zenodo](https://doi.org/10.5281/zenodo.7686022) | [Figshare](http://doi.org/10.6084/m9.figshare.22205020)
+  
+![StoManager1_v 1 0 0](https://github.com/JiaxinWang123/StoManager1/assets/98176596/2e15a57f-1de9-409d-b888-71adc53524ed)
 
-![StoManager1_v8](https://user-images.githubusercontent.com/98176596/236367191-ccbfbcaa-bbeb-421a-96e3-ebd461b3bda1.png)
