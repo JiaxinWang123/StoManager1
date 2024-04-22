@@ -23,6 +23,7 @@ If you use StoManager1 in your research, please cite as follows:
 
 - **Research Article**:
   - Jiaxin Wang*, Heidi J. Renninger, Qin Ma, Shichao Jin, Measuring stomatal and guard cell metrics for plant physiology and growth using StoManager1, Plant Physiology, (2024). https://doi.org/10.1093/plphys/kiae049
+    Free access to [fulltext](https://academic.oup.com/plphys/advance-article/doi/10.1093/plphys/kiae049/7595555?utm_source=authortollfreelink&utm_campaign=plphys&utm_medium=email&guestAccessKey=2a1005fc-39d4-493a-b09e-123d8962bb1c).
 
 - **Preprint**:
 ```bibtex
