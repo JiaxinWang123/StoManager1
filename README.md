@@ -12,6 +12,7 @@ StoManager1 is an advanced tool designed for the high-throughput measurement of 
 - **Weights for YOLO Models**:
   - [YOLOv3 Weights](https://drive.google.com/file/d/1-6XFtIso7OH5RHLqWlOpKoq-IhdYKWqx/view?usp=share_link)
   - [YOLOv8 Weights](https://drive.google.com/file/d/1zKTrbJmZuXKjVr64LX5P_vdNL3AqhX5i/view?usp=share_link)
+  - [Single Files](https://mstate-my.sharepoint.com/:f:/g/personal/jw3994_msstate_edu/EjzgRGSJ83ZOuUyy1tG1NtgBcwofVOIXvnvTTvWaPD3VCQ?e=Bokpao)
 - **Toy Dataset**: [Google Drive](https://drive.google.com/drive/folders/1kSicatjBYj1BYc0TWhrRvXRALocct6sI?usp=share_link)
 
 ## Documentation
