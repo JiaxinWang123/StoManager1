@@ -9,11 +9,7 @@ StoManager1 is an advanced tool designed for the high-throughput measurement of 
 
 ## Downloads
 - **Windows Application**: [Zenodo](https://doi.org/10.5281/zenodo.7686022) | [Figshare](http://doi.org/10.6084/m9.figshare.22205020)
-- **Weights for YOLO Models**:
-  - [YOLOv3 Weights](https://drive.google.com/file/d/1-6XFtIso7OH5RHLqWlOpKoq-IhdYKWqx/view?usp=share_link)
-  - [YOLOv8 Weights](https://drive.google.com/file/d/1zKTrbJmZuXKjVr64LX5P_vdNL3AqhX5i/view?usp=share_link)
-  - [Single Files](https://mstate-my.sharepoint.com/:f:/g/personal/jw3994_msstate_edu/EjzgRGSJ83ZOuUyy1tG1NtgBcwofVOIXvnvTTvWaPD3VCQ?e=Bokpao)
-- **Toy Dataset**: [Google Drive](https://drive.google.com/drive/folders/1kSicatjBYj1BYc0TWhrRvXRALocct6sI?usp=share_link)
+- **Toy Dataset**: [Zenodo](https://zenodo.org/records/10553682/files/Toy%20dataset.rar?download=1)
 
 ## Documentation
 - **Manual**: [StoManager1.0.0 Manual](https://github.com/JiaxinWang123/StoManager1/blob/main/StoManager1.0.0_Manual.pdf)
