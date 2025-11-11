@@ -1,4 +1,4 @@
-## Note: A more friendly and well organized version of the source code is on the way.
+## A more friendly and well organized version of the source code is on the way.
 # StoManager1 
 ### Automated, High-throughput Tool to Measure Leaf Stomata Using Convolutional Neural Networks
 
