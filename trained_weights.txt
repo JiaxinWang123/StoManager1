@@ -1,2 +1,4 @@
 Please follow this link to download the trained weights.
-https://drive.google.com/file/d/1-6XFtIso7OH5RHLqWlOpKoq-IhdYKWqx/view?usp=share_link
+
+https://zenodo.org/records/17856516/files/YOLOV3_weights.zip?download=1
+https://zenodo.org/records/17856516/files/YOLOV8x_weights.zip?download=1
