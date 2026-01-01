@@ -1,54 +1,27 @@
 from setuptools import setup, find_packages
-import os
-
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname), encoding="utf-8").read()
 
 setup(
-    name="StoManager1",
+    name="StoManager_Project",
     version="1.0.0",
-    author="Jiaxin Wang",
-    author_email="coolwjx@foxmail.com",
-    description="StoManager1: Stomata detection, measurement, and YOLO-based training tool",
-    long_description=read("README.md") if os.path.exists("README.md") else "",
-    long_description_content_type="text/markdown",
-    url="https://github.com/JiaxinWang123/StoManager1",
-    py_modules=[
-        "StoManager1_v10_new",
-        "model_training_in_app",
-        "train_seg",
-        "res"
-    ],
+    packages=find_packages(),
     install_requires=[
-        "PyQt5>=5.15.0",
-        "pandas>=1.5.0",
-        "numpy<2.0",
-        "opencv-python>=4.7.0",
-        "Pillow>=9.0.0",
-        "ultralytics>=8.0.0",
+        "PyQt5",
+        "ultralytics",
+        "shapely",
+        "opencv-python",
+        "pandas",
+        "scipy",
+        "qtpy",
+        "torch",
+        "numpy",
     ],
     entry_points={
         "console_scripts": [
-            "stomanager=StoManager1_v10_new:main",  # main() must exist in StoManager1_v10_new.py
+            "stomanager=main:main",
+            "stomanager-cli=cli:main",
         ],
     },
-    include_package_data=True,
-    package_data={
-        "": [
-            "*.ico",
-            "*.txt",
-            "*.cfg",
-            "*.qrc",
-            "*.ui",
-            "*.pt",
-            "*.weights",
-            "*.pdf"
-        ],
-    },
-    classifiers=[
-        "Programming Language :: Python :: 3",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: OS Independent",
-    ],
+    author="Jiaxin Wang",
+    description="A tool for stomatal detection and measurement using YOLOv8-seg-x.",
     python_requires=">=3.8",
 )
