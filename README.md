@@ -99,24 +99,6 @@ Or if installed via `setup.py`:
 stomanager
 ```
 
-## CLI Version (Server/No-UI)
-
-You can run the tool without a UI using the CLI version:
-
-```bash
-# For prediction
-python cli.py predict --input /path/to/images --output /path/to/output --conf 0.25
-
-# For training
-python cli.py train --data /path/to/data.yaml --epochs 100 --batch 4 --device cpu
-```
-
-If installed via `setup.py`:
-
-```bash
-stomanager-cli predict --input /path/to/images --output /path/to/output
-```
-
 ## Downloads
 - **Windows Application**: [Zenodo](https://doi.org/10.5281/zenodo.7686022) | [Figshare](http://doi.org/10.6084/m9.figshare.22205020)
 - **Toy Dataset**: [Zenodo](https://zenodo.org/records/10553682/files/Toy%20dataset.rar?download=1)
