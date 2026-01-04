@@ -210,7 +210,7 @@ class TrainingWindow(QMainWindow):
         self.label_3 = QtWidgets.QLabel(self.verticalWidget_2)
         self.label_3.setFont(font)
         self.label_3.setStyleSheet("color: rgb(214, 214, 214);")
-        self.label_3.setText("© Jiaxin Wang.  For questions or requests 📧  coolwjx@foxmail.com; jw3994@msstate.edu")
+        self.label_3.setText("© Jiaxin Wang.  For questions or requests 📧  jiaxinwang362@gmail.com; jiaxinwang@cornell.edu")
         self.horizontalLayout_10.addWidget(self.label_3)
         
         self.label_9 = QtWidgets.QLabel(self.verticalWidget_2)
