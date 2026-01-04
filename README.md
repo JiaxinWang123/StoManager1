@@ -1,19 +1,75 @@
 # StoManager Project
 
-This project is a reorganized version of the StoManager application, designed for better maintainability and modularity.
+Complete reorganization of the StoManager1 stomata detection and analysis tool.
 
-## Project Structure
+## 📁 Project Structure
 
-- `main.py`: The entry point of the application.
-- `src/`: Contains the source code.
-  - `ui/`: Contains the UI-related classes and components.
-    - `main_window.py`: The main application window.
-    - `training_window.py`: The training window.
-    - `common_imports.py`: Shared imports for UI components.
-  - `utils/`: Contains utility functions.
-    - `file_ops.py`: File and directory operations.
-- `assets/`: Contains static assets like icons and images.
-- `data/`: Directory for storing application data.
+```
+StoManager1/
+├── main.py                          # Application entry point
+├── config/
+│   ├── __init__.py
+│   └── constants.py                 # All configuration constants
+├── utils/
+│   ├── __init__.py
+│   ├── file_utils.py               # File operations
+│   └── image_utils.py              # Image utilities
+├── ui/
+│   ├── __init__.py
+│   ├── dialogs.py                  # Message boxes and dialogs
+│   ├── main_window.py              # Main application window (2 parts)
+│   └── training_window.py          # Model training interface
+├── processors/
+│   ├── __init__.py
+│   ├── file_normalizer.py          # Filename normalization
+│   ├── stomata_analyzer.py         # Analysis algorithms
+│   ├── yolov3_processor.py         # YOLOv3 detection
+│   └── yolov8_processor.py         # YOLOv8 segmentation
+├── statistics/
+│   ├── __init__.py
+│   └── calculator.py               # Statistical calculations
+└── resources/
+    ├── StoManager.ico
+    ├── best.pt                      # YOLOv8 weights
+    ├── yolov3_training_last.weights # YOLOv3 weights
+    └── yolov3_testing.cfg           # YOLOv3 config
+```
+
+## 🚀 Installation
+
+### Step 1: Create Directory Structure
+
+```bash
+mkdir -p StoManager1/{config,utils,ui,processors,statistics,resources}
+```
+
+### Step 2: Create __init__.py Files
+
+```bash
+# Create empty __init__.py in each package
+touch StoManager1/config/__init__.py
+touch StoManager1/utils/__init__.py
+touch StoManager1/ui/__init__.py
+touch StoManager1/processors/__init__.py
+touch StoManager1/statistics/__init__.py
+```
+
+### Step 3: Copy Files
+
+Copy each file from the artifacts into its respective location:
+
+1. **config/constants.py** - Configuration constants
+2. **utils/file_utils.py** - File management utilities
+3. **utils/image_utils.py** - Image processing utilities
+4. **ui/dialogs.py** - Dialog management
+5. **ui/training_window.py** - Training interface
+6. **ui/main_window.py** - Combine Part 1 and Part 2 into single file
+7. **processors/file_normalizer.py** - Filename normalization
+8. **processors/stomata_analyzer.py** - Analysis algorithms
+9. **processors/yolov3_processor.py** - YOLOv3 processing
+10. **processors/yolov8_processor.py** - YOLOv8 processing
+11. **statistics/calculator.py** - Statistics calculator
+12. **main.py** - Application entry point
 
 ## Installation
 
