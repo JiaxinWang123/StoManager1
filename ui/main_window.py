@@ -171,7 +171,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.lineEdit_4.setFont(font)
         self.lineEdit_4.setStyleSheet("background-color: rgb(255, 255, 255);")
         self.lineEdit_4.setClearButtonEnabled(True)
-        self.lineEdit_4.setText("Input pixels in 0.1 mm, the default is: 465")
+        self.lineEdit_4.setText("Input pixels in 0.1 mm, the default is 465")
         self.verticalLayout.addWidget(self.lineEdit_4)
         
         # Confidence parameter
@@ -337,7 +337,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.label_3 = QtWidgets.QLabel(self.centralwidget)
         self.label_3.setFont(font)
         self.label_3.setStyleSheet("color: rgb(214, 214, 214);")
-        self.label_3.setText("© Jiaxin Wang.  For questions or requests 📧  coolwjx@foxmail.com; jw3994@msstate.edu")
+        self.label_3.setText("© Jiaxin Wang.  For questions or requests 📧  jiaxinwang362@gmail.com; jiaxinwang@cornell.edu")
         self.horizontalLayout_10.addWidget(self.label_3)
         
         self.label_9 = QtWidgets.QLabel(self.centralwidget)
