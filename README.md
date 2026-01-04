@@ -25,10 +25,10 @@ StoManager1/
 │   ├── stomata_analyzer.py         # Analysis algorithms
 │   ├── yolov3_processor.py         # YOLOv3 detection
 │   └── yolov8_processor.py         # YOLOv8 segmentation
-├── statistics/
+├── stats/
 │   ├── __init__.py
 │   └── calculator.py               # Statistical calculations
-└── resources/
+└── assets/
     ├── StoManager.ico
     ├── best.pt                      # YOLOv8 weights
     ├── yolov3_training_last.weights # YOLOv3 weights
