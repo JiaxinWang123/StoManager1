@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="StoManager_Project",
+    name="StoManager1_Project",
     version="1.0.0",
     packages=find_packages(),
     install_requires=[
@@ -17,8 +17,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "stomanager=main:main",
-            "stomanager-cli=cli:main",
+            "stomanager1=main:main"
         ],
     },
     author="Jiaxin Wang",
