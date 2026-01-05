@@ -237,7 +237,10 @@ class StatisticsCalculator:
         for col in df.columns:
             if col in ['Filename', 'Site', 'Block', 'Clone', 'Month', 'Year']: continue
             try:
-                if any(x in col for x in ['ratio_area_st_to_gc', 'ratio_area_to_img']):
+                # Increased precision for ratio_area_to_img
+                if 'ratio_area_to_img' in col:
+                    df[col] = df[col].map('{:,.6f}'.format)
+                elif 'ratio_area_st_gc' in col:
                     df[col] = df[col].map('{:,.3f}'.format)
                 elif any(x in col for x in ['SEve', 'SDiv', 'SAgg']):
                     df[col] = df[col].map('{:,.4f}'.format)
