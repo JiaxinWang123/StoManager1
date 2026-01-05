@@ -28,8 +28,8 @@ OUTLIER_IQR_MULTIPLIER = 1.5
 # UI Constants
 ICON_PATH = "assets/StoManager.ico"
 WINDOW_TITLE = "StoManager1 v.1.0.0."
-WINDOW_WIDTH = 1200
-WINDOW_HEIGHT = 800
+WINDOW_WIDTH = 1280
+WINDOW_HEIGHT = 720
 
 # Site, Block, Year, Month, Tail, Clone lists for normalization
 SITES = ["M", "Mon", "m", "mon", "P", "p", "Pon", "pon", "PON", 
