@@ -169,6 +169,7 @@ class YOLOv8Processor:
 
         for j in range(num_wst):
             wst_centroid = whole_stomata["centroid"][j]
+            # Convert area to mum2
             area_1 = int((whole_stomata["area"][j]) / (100 * pixel_size * pixel_size) * 1000000)
             length_1 = whole_stomata["length"][j]
             width_1 = whole_stomata["width"][j]
@@ -201,7 +202,11 @@ class YOLOv8Processor:
                     img_area = ori_img_shape[0] * ori_img_shape[1]
                     wst_density = int(num_wst * ((100 * pixel_size * pixel_size) / img_area))
                     ratio_st_gc = area_0 / gc_area if gc_area > 0 else 0
-                    ratio_wst_img = sum(area_wst_list) / (img_area * (pixel_size/100)**2)
+                    
+                    # Corrected ratio_area_to_img calculation matching original StoManager1_v10_new.py
+                    # Original: sum(area/(10000/(pixel*pixel))) / (width * height)
+                    # Which is: sum(area * pixel * pixel / 10000) / (width * height)
+                    ratio_wst_img = sum(a * (pixel_size**2) / 10000 for a in area_wst_list) / img_area
                     
                     link_st_wst.append([
                         ori_img_shape, "1", num_wst, j,
