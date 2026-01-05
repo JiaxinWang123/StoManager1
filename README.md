@@ -68,7 +68,7 @@ Copy each file from the artifacts into its respective location:
 8. **processors/stomata_analyzer.py** - Analysis algorithms
 9. **processors/yolov3_processor.py** - YOLOv3 processing
 10. **processors/yolov8_processor.py** - YOLOv8 processing
-11. **statistics/calculator.py** - Statistics calculator
+11. **stats/calculator.py** - Statistics calculator
 12. **main.py** - Application entry point
 
 ## Installation
