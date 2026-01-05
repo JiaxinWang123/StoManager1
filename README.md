@@ -96,7 +96,7 @@ python main.py
 Or if installed via `setup.py`:
 
 ```bash
-stomanager
+stomanager1
 ```
 
 ## Downloads
