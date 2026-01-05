@@ -28,7 +28,7 @@ class TrainingWindow(QMainWindow):
         """Initialize the training window UI."""
         self.setObjectName("StoManager1")
         self.setWindowIcon(QtGui.QIcon("assets/StoManager.ico"))
-        self.resize(1200, 800)
+        self.resize(WINDOW_WIDTH, WINDOW_HEIGHT)
         self.setWindowIcon(QtGui.QIcon(ICON_PATH))
         
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, 
