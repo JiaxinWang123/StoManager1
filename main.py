@@ -4,7 +4,7 @@ StoManager1 - Stomata Detection and Analysis Tool
 Main entry point for the application.
 
 Author: Jiaxin Wang
-Contact: coolwjx@foxmail.com; jw3994@msstate.edu
+Contact: jiaxinwang@cornell.edu; jiaxinwang362@gmail.com
 """
 
 import sys
