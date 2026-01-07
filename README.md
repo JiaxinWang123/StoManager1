@@ -40,7 +40,7 @@ StoManager1/
 ### Step 1: Create Directory Structure
 
 ```bash
-mkdir -p StoManager1/{config,utils,ui,processors,statistics,resources}
+mkdir -p StoManager1/{config,utils,ui,processors,stats,assets}
 ```
 
 ### Step 2: Create __init__.py Files
