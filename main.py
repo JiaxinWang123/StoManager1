@@ -8,6 +8,7 @@ Contact: jiaxinwang@cornell.edu; jiaxinwang362@gmail.com
 """
 
 import sys
+import torch
 from PyQt5 import QtWidgets
 from ui.main_window import MainWindow
 
