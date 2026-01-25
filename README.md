@@ -39,7 +39,18 @@ StoManager1/
 
 ## 🚀 Installation
 
-### GUI Version (Desktop Use)
+### Step 1: Clone the Repository
+
+First, clone the repository from GitHub:
+
+```bash
+git clone https://github.com/JiaxinWang123/StoManager.git
+cd StoManager
+```
+
+### Step 2: Install Dependencies
+
+#### GUI Version (Desktop Use)
 
 Install with GUI dependencies:
 
@@ -53,7 +64,7 @@ Or install dependencies manually:
 pip install PyQt5 ultralytics shapely opencv-python pandas scipy qtpy torch numpy
 ```
 
-### CLI Version (Server/Headless Use)
+#### CLI Version (Server/Headless Use)
 
 Install without GUI dependencies:
 
@@ -68,6 +79,8 @@ pip install -e .
 pip uninstall opencv-python -y
 pip install opencv-python-headless
 ```
+
+**Note:** The `-e` flag installs in "editable" mode, which allows you to modify the code and see changes immediately without reinstalling.
 
 ## 💻 How to Run
 
@@ -160,23 +173,25 @@ python cli.py train -d data.yaml --epochs 100 --batch 4
 
 ### Server Deployment
 
-#### Clone and Setup on Server
+#### Complete Setup from Scratch
 
 ```bash
-# Clone repository
+# 1. Clone repository
 git clone https://github.com/JiaxinWang123/StoManager.git
 cd StoManager
 
-# Create virtual environment (recommended)
+# 2. Create virtual environment (recommended)
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
-# Install for CLI only
+# 3. Install for CLI only
 pip install -e .
+
+# 4. For headless servers, use opencv-python-headless
 pip uninstall opencv-python -y
 pip install opencv-python-headless
 
-# Verify installation
+# 5. Verify installation
 python cli.py --help
 ```
 
