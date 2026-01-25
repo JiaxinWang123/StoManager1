@@ -109,10 +109,10 @@ The CLI allows you to run StoManager1 on servers or in batch processing workflow
 python cli.py --help
 
 # Process images with YOLOv8
-python cli.py process -i ./input -o ./output -m yolov8
+python cli.py process -i /input -o /output -m yolov8
 
 # Calculate statistics
-python cli.py stats -o ./output -m yolov8
+python cli.py stats -o /output -m yolov8
 ```
 
 #### Available Commands
@@ -120,28 +120,28 @@ python cli.py stats -o ./output -m yolov8
 **1. Process Images**
 ```bash
 # Basic processing
-python cli.py process -i ./input_folder -o ./output_folder
+python cli.py process -i /input_folder -o /output_folder
 
 # With custom parameters
-python cli.py process -i ./input -o ./output -m yolov8 -p 465 -c 0.25
+python cli.py process -i /input -o /output -m yolov8 -p 465 -c 0.25
 
 # Using YOLOv3
-python cli.py process -i ./input -o ./output -m yolov3
+python cli.py process -i /input -o /output -m yolov3
 ```
 
 **2. Calculate Statistics**
 ```bash
 # Non-grouped analysis
-python cli.py stats -o ./output_folder -m yolov8
+python cli.py stats -o /output_folder -m yolov8
 
 # Grouped analysis (for Populus dataset)
-python cli.py stats -o ./output_folder -m yolov8 --group
+python cli.py stats -o /output_folder -m yolov8 --group
 ```
 
 **3. Normalize Filenames**
 ```bash
 # Normalize filenames (Populus dataset)
-python cli.py normalize -i ./input_folder
+python cli.py normalize -i /input_folder
 ```
 
 **4. Train Model**
