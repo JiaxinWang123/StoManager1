@@ -17,7 +17,9 @@ ultralytics>=8.0.0,<9.0.0  # YOLOv8 segmentation/detection
 # Image processing
 opencv-python>=4.8,<5.0    # OpenCV for image I/O
 Pillow>=10.0,<11.0         # Pillow for raster image handling
+shapely<=2.1               # Geometric calculations
 
 # Utilities
 tqdm>=4.65                # progress bars
 pyyaml>=6.0               # YAML file support
+
