@@ -44,7 +44,7 @@ StoManager1/
 First, clone the repository from GitHub:
 
 ```bash
-git clone https://github.com/JiaxinWang123/StoManager.git
+git clone https://github.com/JiaxinWang123/StoManager1.git
 cd StoManager
 ```
 
