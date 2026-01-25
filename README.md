@@ -6,7 +6,9 @@ Complete reorganization of the StoManager1 stomata detection and analysis tool.
 
 ```
 StoManager1/
-├── main.py                          # Application entry point
+├── main.py                          # GUI application entry point
+├── cli.py                           # Command-line interface (NEW!)
+├── setup.py                         # Package installation
 ├── config/
 │   ├── __init__.py
 │   └── constants.py                 # All configuration constants
@@ -17,7 +19,7 @@ StoManager1/
 ├── ui/
 │   ├── __init__.py
 │   ├── dialogs.py                  # Message boxes and dialogs
-│   ├── main_window.py              # Main application window (2 parts)
+│   ├── main_window.py              # Main application window
 │   └── training_window.py          # Model training interface
 ├── processors/
 │   ├── __init__.py
@@ -37,57 +39,41 @@ StoManager1/
 
 ## 🚀 Installation
 
-### Step 1: Create Directory Structure
+### GUI Version (Desktop Use)
+
+Install with GUI dependencies:
 
 ```bash
-mkdir -p StoManager1/{config,utils,ui,processors,stats,assets}
+pip install -e .[gui]
 ```
 
-### Step 2: Create __init__.py Files
-
-```bash
-# Create empty __init__.py in each package
-touch StoManager1/config/__init__.py
-touch StoManager1/utils/__init__.py
-touch StoManager1/ui/__init__.py
-touch StoManager1/processors/__init__.py
-touch StoManager1/statistics/__init__.py
-```
-
-### Step 3: Copy Files
-
-Copy each file from the artifacts into its respective location:
-
-1. **config/constants.py** - Configuration constants
-2. **utils/file_utils.py** - File management utilities
-3. **utils/image_utils.py** - Image processing utilities
-4. **ui/dialogs.py** - Dialog management
-5. **ui/training_window.py** - Training interface
-6. **ui/main_window.py** - Combine Part 1 and Part 2 into single file
-7. **processors/file_normalizer.py** - Filename normalization
-8. **processors/stomata_analyzer.py** - Analysis algorithms
-9. **processors/yolov3_processor.py** - YOLOv3 processing
-10. **processors/yolov8_processor.py** - YOLOv8 processing
-11. **stats/calculator.py** - Statistics calculator
-12. **main.py** - Application entry point
-
-## Installation
-
-You can install the project and its dependencies using `setup.py`:
-
-```bash
-pip install -e .
-```
-
-Alternatively, you can install the dependencies manually:
+Or install dependencies manually:
 
 ```bash
 pip install PyQt5 ultralytics shapely opencv-python pandas scipy qtpy torch numpy
 ```
 
-## How to Run
+### CLI Version (Server/Headless Use)
 
-Run the application using the entry point:
+Install without GUI dependencies:
+
+```bash
+pip install -e .
+```
+
+For headless servers, use opencv-python-headless:
+
+```bash
+pip install -e .
+pip uninstall opencv-python -y
+pip install opencv-python-headless
+```
+
+## 💻 How to Run
+
+### GUI Application
+
+Run the graphical interface:
 
 ```bash
 python main.py
@@ -97,6 +83,146 @@ Or if installed via `setup.py`:
 
 ```bash
 stomanager1
+```
+
+### Command-Line Interface (CLI)
+
+The CLI allows you to run StoManager1 on servers or in batch processing workflows without a GUI.
+
+#### Quick Start
+
+```bash
+# Get help
+python cli.py --help
+
+# Process images with YOLOv8
+python cli.py process -i ./input -o ./output -m yolov8
+
+# Calculate statistics
+python cli.py stats -o ./output -m yolov8
+```
+
+#### Available Commands
+
+**1. Process Images**
+```bash
+# Basic processing
+python cli.py process -i ./input_folder -o ./output_folder
+
+# With custom parameters
+python cli.py process -i ./input -o ./output -m yolov8 -p 465 -c 0.25
+
+# Using YOLOv3
+python cli.py process -i ./input -o ./output -m yolov3
+```
+
+**2. Calculate Statistics**
+```bash
+# Non-grouped analysis
+python cli.py stats -o ./output_folder -m yolov8
+
+# Grouped analysis (for Populus dataset)
+python cli.py stats -o ./output_folder -m yolov8 --group
+```
+
+**3. Normalize Filenames**
+```bash
+# Normalize filenames (Populus dataset)
+python cli.py normalize -i ./input_folder
+```
+
+**4. Train Model**
+```bash
+# Train YOLOv8 model
+python cli.py train -d data.yaml --epochs 100 --batch 4
+```
+
+#### CLI Parameters
+
+**Process Command:**
+- `-i, --input`: Input folder containing images (required)
+- `-o, --output`: Output folder for results (required)
+- `-m, --model`: Model to use: `yolov8` or `yolov3` (default: yolov8)
+- `-p, --pixel-size`: Pixels in 0.1mm (default: 465)
+- `-c, --confidence`: Confidence threshold (default: 0.25)
+
+**Stats Command:**
+- `-o, --output`: Output folder with processed results (required)
+- `-m, --model`: Model used for processing (default: yolov8)
+- `-g, --group`: Perform grouped analysis (Populus dataset only)
+
+**Train Command:**
+- `-d, --data`: Path to data.yaml file (required)
+- `-e, --epochs`: Number of training epochs (default: 1000)
+- `-b, --batch`: Batch size (default: 2)
+- `--imgsz`: Image size (default: 640)
+- `--device`: Device to use: 0, 1, 2, or cpu (default: 0)
+
+### Server Deployment
+
+#### Clone and Setup on Server
+
+```bash
+# Clone repository
+git clone https://github.com/JiaxinWang123/StoManager.git
+cd StoManager
+
+# Create virtual environment (recommended)
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install for CLI only
+pip install -e .
+pip uninstall opencv-python -y
+pip install opencv-python-headless
+
+# Verify installation
+python cli.py --help
+```
+
+#### Example Workflow on Server
+
+```bash
+# 1. Create directories
+mkdir -p ~/stomata_data/input ~/stomata_data/output
+
+# 2. Upload images to server (from local machine)
+scp -r /local/path/images/* user@server:~/stomata_data/input/
+
+# 3. Process images
+python cli.py process \
+    -i ~/stomata_data/input \
+    -o ~/stomata_data/output \
+    -m yolov8
+
+# 4. Calculate statistics
+python cli.py stats \
+    -o ~/stomata_data/output \
+    -m yolov8
+
+# 5. Download results (from local machine)
+scp -r user@server:~/stomata_data/output ./results/
+```
+
+#### Running in Background
+
+For long-running jobs:
+
+```bash
+# Using nohup
+nohup python cli.py process -i ./input -o ./output > analysis.log 2>&1 &
+
+# Using screen
+screen -S stomata
+python cli.py process -i ./input -o ./output
+# Detach: Ctrl+A then D
+# Reattach: screen -r stomata
+
+# Using tmux
+tmux new -s stomata
+python cli.py process -i ./input -o ./output
+# Detach: Ctrl+B then D
+# Reattach: tmux attach -t stomata
 ```
 
 ## Downloads
@@ -138,3 +264,78 @@ StoManager1_v.1.0.0 is an enhanced version of StoManager1, featuring additional 
 - **Latest Standalone Windows Version Apps**: [Zenodo](https://doi.org/10.5281/zenodo.7686022) | [Figshare](http://doi.org/10.6084/m9.figshare.22205020)
   
 ![StoManager1_v 1 0 0](https://github.com/JiaxinWang123/StoManager1/assets/98176596/2e15a57f-1de9-409d-b888-71adc53524ed)
+
+## Features
+
+### GUI Application
+- 🖼️ Interactive image viewing and navigation
+- 📊 Real-time visualization of detection results
+- 🎯 Adjustable detection parameters
+- 📈 Statistical analysis with visual feedback
+- 🔧 Model training interface
+- 💾 Export results to CSV and Excel
+
+### Command-Line Interface (NEW!)
+- 🚀 Server and cluster deployment
+- 📦 Batch processing of large datasets
+- 🔄 Automated workflows and pipelines
+- 💻 Headless operation (no GUI required)
+- ⚡ High-performance processing
+- 📝 Progress tracking and logging
+
+## Troubleshooting
+
+### CLI Command Not Found
+
+If `stomanager1-cli` command is not recognized:
+
+**Solution 1: Run directly with Python**
+```bash
+python cli.py --help
+```
+
+**Solution 2: Add to PATH**
+```bash
+# Linux/Mac
+export PATH="$PATH:$HOME/.local/bin"
+
+# Windows PowerShell
+$env:Path += ";C:\Users\YourName\AppData\Local\Programs\Python\Python3X\Scripts"
+```
+
+### Module Import Errors
+
+Ensure all `__init__.py` files exist:
+```bash
+touch config/__init__.py
+touch processors/__init__.py
+touch stats/__init__.py
+touch utils/__init__.py
+```
+
+### GPU/CUDA Issues
+
+Check CUDA availability:
+```bash
+python -c "import torch; print('CUDA available:', torch.cuda.is_available())"
+```
+
+For headless servers, use CPU:
+```bash
+# The CLI will automatically use GPU if available, otherwise CPU
+# To force CPU, you can modify the device parameter in processor code
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the terms specified in the repository.
+
+## Contact
+
+- **Author**: Jiaxin Wang
+- **Email**: jiaxinwang362@gmail.com; jiaxinwang@cornell.edu
+- **GitHub**: [https://github.com/JiaxinWang123/StoManager1](https://github.com/JiaxinWang123/StoManager1)
