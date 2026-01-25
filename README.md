@@ -1,4 +1,4 @@
-# StoManager Project
+# StoManager1 Project
 
 Complete reorganization of the StoManager1 stomata detection and analysis tool.
 
